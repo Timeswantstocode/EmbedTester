@@ -30,9 +30,11 @@ STATE_FILE = "scripts/last_rentry_state.json"
 JINA_DELAY = 1.0  # Reduced to 1.0s as requested, using rotating proxies
 BATCH_SIZE = 5  # Gemma 256K can easily handle 5+ full provider pages
 
-# Jina Reader headers — default to Markdown (no X-Return-Format: text)
+# Jina Reader headers
 JINA_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "X-Return-Format": "markdown",
+    "X-No-Cache": "true"
 }
 
 # Global proxy list and rotation counter
@@ -70,30 +72,44 @@ def jina_get(url: str) -> str:
     attempts_allowed = min(3, len(WEBSHARE_PROXIES)) if WEBSHARE_PROXIES else 0
     
     for attempt in range(attempts_allowed):
-        # Rotating proxy selection
         proxy_url = WEBSHARE_PROXIES[proxy_index % len(WEBSHARE_PROXIES)]
         proxy_index += 1
-
         proxy_handler = urllib.request.ProxyHandler({'http': proxy_url, 'https': proxy_url})
         opener = urllib.request.build_opener(proxy_handler)
         
         try:
             with opener.open(req, timeout=45) as response:
                 return response.read().decode('utf-8')
+        except urllib.error.HTTPError as e:
+            print(f"    [Proxy Attempt {attempt+1} HTTP {e.code}]: {url}", flush=True)
+            if e.code in (400, 422): break # Fatal for this URL
         except Exception as e:
             print(f"    [Proxy Attempt {attempt+1} Failed]: {e}", flush=True)
-            time.sleep(0.5) # Small delay before trying next proxy
+        time.sleep(1.0)
             
-    # Fallback to direct (no proxy) if all proxies failed or if no proxies available
+    # Fallback to direct (no proxy)
     if WEBSHARE_PROXIES:
         print("    [Falling back to direct connection...]", flush=True)
         
-    try:
-        with urllib.request.urlopen(req, timeout=45) as response:
-            return response.read().decode('utf-8')
-    except Exception as e:
-        print(f"  [JINA ERROR] {url}: {e}", flush=True)
-        return ""
+    for attempt in range(2):
+        try:
+            with urllib.request.urlopen(req, timeout=45) as response:
+                return response.read().decode('utf-8')
+        except urllib.error.HTTPError as e:
+            print(f"  [JINA ERROR] {url}: HTTP {e.code}", flush=True)
+            if e.code == 422:
+                print(f"    -> Jina cannot process this URL (Unprocessable Entity).", flush=True)
+            elif e.code == 400:
+                print(f"    -> Bad Request (Invalid URL or parameters).", flush=True)
+            elif e.code == 503:
+                print(f"    -> Jina busy (503). Retrying...", flush=True)
+                time.sleep(2 * (attempt + 1))
+                continue
+            break
+        except Exception as e:
+            print(f"  [JINA ERROR] {url}: {e}", flush=True)
+            time.sleep(1)
+    return ""
 
 def ask_gemma(prompt: str, model_name: str) -> dict | str | None:
     """Call Gemini API mirroring FAM's gemini.ts pattern exactly."""
@@ -165,18 +181,34 @@ CRITICAL RULES:
 3. For movie_embed: construct the full URL using TMDB ID "{TMDB_MOVIE_ID}".
 4. For tv_embed: construct the full URL using TMDB ID "{TMDB_TV_ID}", season "1", episode "1". If it's an Anime site, use tv_embed for the anime URL pattern.
 5. If the site uses IMDB IDs instead of TMDB, note it in llm_profile and still produce the URL with the TMDB constant.
-6. Look for "hidden" patterns: Sometimes URLs are mentioned in text as "https://site.com/embed/movie/ID" or similar. Even if you see a button or dropdown mentioned, try to deduce the URL structure from the text around it.
+6. BE PROACTIVE: Look for "hidden" patterns. Sometimes URLs are mentioned in text as "https://site.com/embed/movie/ID" or similar. Even if you see a button, dropdown, or JS code mentioned, try to deduce the URL structure from the text around it.
 7. If a URL pattern cannot be determined from the content (e.g., if the page is just an error, a security update guide, or completely unrelated to streaming APIs), set BOTH movie_embed and tv_embed to empty strings.
 
-For each provider's "llm_profile", write a beautifully formatted, clean markdown document. Use newlines and bullet points for readability. It MUST NOT look like a giant wall of text.
-Include exactly these sections:
-- Base URL: (e.g. https://www.2embed.cc)
-- Embed Example: (e.g. https://www.2embed.cc/embed/129)
-- URL Structure: (exact path pattern for movies and TV, including any required ID formats)
-- Supported IDs: (TMDB, IMDB, TVMaze, AniList, etc.)
-- Query Parameters: (list every documented parameter)
-- Player Events / PostMessage API: (any documented events)
-- Integration Notes: (iframe sandbox, CORS, auth)
+For each provider's "llm_profile", write a beautifully formatted, clean markdown document. Use `###` headers for EVERY section. Use newlines and bullet points for readability. It MUST NOT look like a giant wall of text.
+
+EXAMPLE FORMAT:
+### Base URL
+https://site.com
+
+### Embed Example
+https://site.com/embed/movie/129
+
+### URL Structure
+- **Movies**: `/embed/movie/{id}`
+- **TV**: `/embed/tv/{id}/{s}/{e}`
+
+### Supported IDs
+- TMDB (Numeric)
+
+### Query Parameters
+- `autoplay`: boolean
+- `theme`: hex color
+
+### Player Events / PostMessage API
+- `play`, `pause`, `timeupdate`
+
+### Integration Notes
+- Supports HLS. No API key needed.
 
 JSON schema (output exactly this shape):
 {{
@@ -207,7 +239,7 @@ Providers to analyse:
         
         if res == "RETRYABLE_BUSY":
             # Exponential backoff for 503 errors
-            wait = (2 ** attempt) * 5
+            wait = (attempt + 1) * 10
             print(f"    -> Model busy (503). Waiting {wait}s...", flush=True)
             time.sleep(wait)
             continue
@@ -360,8 +392,12 @@ def main():
                             docs_links.append({"url": base_link, "reason": f"keyword match: {link_text}"})
 
             # Heuristic: try common paths
-            common_paths = ['/docs', '/api', '/api-docs', '/documentation', '/embed', '/player']
-            if len(docs_links) < 1:
+            common_paths = ['/docs', '/api', '/api-docs', '/player-api', '/api/docs', '/documentation', '/embed', '/player']
+
+            # Skip sub-pages if homepage is already very detailed (>10KB) and likely has embed info
+            skip_heuristics = len(text) > 10240 and ("tmdb" in text.lower() or "embed" in text.lower())
+
+            if len(docs_links) < 1 and not skip_heuristics:
                 for path in common_paths:
                     docs_links.append({"url": p['homepage'].rstrip('/') + path, "reason": "common path heuristic"})
 
