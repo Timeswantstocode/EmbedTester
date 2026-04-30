@@ -261,19 +261,23 @@ function renderHistory() {
 
   list.innerHTML = '';
   entries.forEach(([name, r]) => {
+    // Find original provider for source type
+    const p = state.providers.find(prov => prov.name === name) || {};
+    
     const div = document.createElement('div');
-    div.className = 'result-row ' + r.status;
+    div.className = 'provider-item ' + r.status;
+    div.style.marginBottom = '10px';
     
     div.innerHTML = `
-      <div class="rr-provider-group">
-        <button class="rr-provider-btn" onclick="openDocsModal('${esc(name)}')">
-          ${esc(name)}
-          <div style="font-size:9px; font-weight:400; opacity:0.7; margin-top:2px;">click for docs</div>
-        </button>
-        <button class="rr-notes-btn" onclick="openNotesModal('${esc(name)}')">View Notes</button>
+      <div class="pi-dot ${r.status}"></div>
+      <div class="pi-info">
+        <div class="pi-name" style="font-size:16px;">${esc(name)} <span class="chip" style="font-size:9px;">${esc(p.source || 'manual')}</span></div>
+        <div class="pi-embed" style="color:var(--text); opacity:0.8; margin-top:2px;">Tested: ${esc(r.embed)}</div>
+        <div class="rr-time" style="margin-top:4px; font-size:10px; color:var(--muted);">${r.time || ''}</div>
       </div>
-      <div style="display:flex; align-items:center; gap:15px;">
-        <div class="rr-time">${r.time || ''}</div>
+      <div class="pi-actions">
+        <button class="btn-xs" onclick="openDocsModal('${esc(name)}')">Docs</button>
+        <button class="btn-xs" style="background:var(--accent-dim); color:var(--accent); border-color:var(--accent);" onclick="openNotesModal('${esc(name)}')">Notes</button>
         <button class="btn-xs" style="background:rgba(255,51,85,0.1); color:var(--red); border-color:var(--red);" onclick="deleteHistoryItem('${esc(name)}')">Delete</button>
       </div>
     `;
