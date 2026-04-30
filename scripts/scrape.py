@@ -12,6 +12,7 @@ import sys
 import urllib.request
 import urllib.error
 import random
+import hashlib
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
@@ -25,6 +26,7 @@ RENTRY_URL = "https://rentry.co/onbksdgu"
 TMDB_MOVIE_ID = "129"
 TMDB_TV_ID = "1399"
 OUTPUT_FILE = "sources.json"
+STATE_FILE = "scripts/last_rentry_state.json"
 JINA_DELAY = 3.2
 BATCH_SIZE = 5  # Gemma 256K can easily handle 5+ full provider pages
 
@@ -154,7 +156,7 @@ def extract_batch_with_ai(batch: list[dict]) -> list[dict]:
         providers_input += f"\n--- PROVIDER {i+1} ---\nNAME: {p['name']}\nHOMEPAGE: {p['homepage']}\nCONTENT:\n{p['text']}\n"
 
     prompt = f"""You are an expert API documentation engineer analysing streaming embed provider websites.
-You are given the scraped text content of {len(batch)} different streaming embed providers.
+You are given the scraped text content of {len(batch)} different streaming embed providers, including potential documentation sub-pages.
 For EACH provider, produce complete, actionable integration documentation.
 
 CRITICAL RULES:
@@ -163,13 +165,14 @@ CRITICAL RULES:
 3. For movie_embed: construct the full URL using TMDB ID "{TMDB_MOVIE_ID}".
 4. For tv_embed: construct the full URL using TMDB ID "{TMDB_TV_ID}", season "1", episode "1". If it's an Anime site, use tv_embed for the anime URL pattern.
 5. If the site uses IMDB IDs instead of TMDB, note it in llm_profile and still produce the URL with the TMDB constant.
-6. If a URL pattern cannot be determined from the content (e.g., if the page is just an error, a security update guide, or completely unrelated to streaming APIs), set BOTH movie_embed and tv_embed to empty strings.
+6. Look for "hidden" patterns: Sometimes URLs are mentioned in text as "https://site.com/embed/movie/ID" or similar. Even if you see a button or dropdown mentioned, try to deduce the URL structure from the text around it.
+7. If a URL pattern cannot be determined from the content (e.g., if the page is just an error, a security update guide, or completely unrelated to streaming APIs), set BOTH movie_embed and tv_embed to empty strings.
 
 For each provider's "llm_profile", write a beautifully formatted, clean markdown document. Use newlines and bullet points for readability. It MUST NOT look like a giant wall of text.
 Include exactly these sections:
 - Base URL: (e.g. https://www.2embed.cc)
 - Embed Example: (e.g. https://www.2embed.cc/embed/129)
-- URL Structure: (exact path pattern for movies and TV)
+- URL Structure: (exact path pattern for movies and TV, including any required ID formats)
 - Supported IDs: (TMDB, IMDB, TVMaze, AniList, etc.)
 - Query Parameters: (list every documented parameter)
 - Player Events / PostMessage API: (any documented events)
@@ -250,11 +253,18 @@ def load_env():
                     key, value = line.strip().split("=", 1)
                     os.environ[key] = value
 
+def get_rentry_hash(providers):
+    """Generate a hash of the current provider list to detect changes."""
+    data = json.dumps(providers, sort_keys=True).encode('utf-8')
+    return hashlib.sha256(data).hexdigest()
+
 def main():
     print("=== FAM Source Verifier — AI Batch Scraper ===", flush=True)
     load_env()
     load_webshare_proxies()
     
+    force_run = os.environ.get("FORCE_RUN") == "true"
+
     if not os.environ.get("GEMINI_API_KEY"):
         print("ERROR: GEMINI_API_KEY not found.", flush=True)
         return
@@ -266,6 +276,16 @@ def main():
         return
     
     providers = parse_rentry(rentry_text)
+    current_hash = get_rentry_hash(providers)
+
+    # Change Detection
+    if not force_run and os.path.exists(STATE_FILE):
+        with open(STATE_FILE, "r") as f:
+            state = json.load(f)
+            if state.get("hash") == current_hash:
+                print("No changes detected in Rentry providers. Exiting.", flush=True)
+                sys.exit(0)
+
     print(f"Found {len(providers)} providers. Processing in batches of {BATCH_SIZE}...", flush=True)
     time.sleep(JINA_DELAY)
     print(flush=True)
@@ -285,43 +305,49 @@ def main():
                 continue
             print("OK", flush=True)
             
-            # Smart Sub-page fetching: if the page is short or contains a link to "docs/api"
-            docs_link = None
-            for m in re.finditer(r'\[(.*?)\]\((.*?)\)', text):
+            # Smart Sub-page fetching: look for documentation, API, or player integration pages
+            docs_links = []
+
+            # 1. Regex search for markdown links with interesting keywords
+            keywords = ['api', 'doc', 'dev', 'embed', 'player', 'integrate', 'use']
+            for m in re.finditer(r'\[([^\]]+)\]\(([^)]+)\)', text):
                 link_text, link_url = m.group(1).lower(), m.group(2)
                 
-                # Ignore anchor links that just scroll down the page
-                if link_url.startswith('#') or link_url == '/' or 'javascript:' in link_url:
+                if link_url.startswith('#') or 'javascript:' in link_url:
                     continue
-                    
-                if 'api' in link_text or 'doc' in link_text or 'developer' in link_text:
+
+                if any(k in link_text for k in keywords):
                     potential_link = None
                     if link_url.startswith('/'):
                         potential_link = p['homepage'].rstrip('/') + link_url
                     elif link_url.startswith('http'):
                         potential_link = link_url
                         
-                    # Ensure it's actually a different page, not just the homepage with an anchor
                     if potential_link:
                         base_home = p['homepage'].split('#')[0].rstrip('/')
                         base_link = potential_link.split('#')[0].rstrip('/')
-                        if base_link != base_home:
-                            docs_link = base_link
-                            break
-            
-            # If text is suspiciously short and no link found, blindly try /docs
-            if not docs_link and len(text) < 1000 and "embed" not in text.lower():
-                docs_link = p['homepage'].rstrip('/') + '/docs'
-                
-            if docs_link:
-                print(f"      -> Found potential docs at {docs_link}, fetching...", end=" ", flush=True)
+                        if base_link != base_home and base_link not in [l['url'] for l in docs_links]:
+                            docs_links.append({"url": base_link, "reason": f"keyword match: {link_text}"})
+
+            # 2. Heuristic: If we haven't found a solid docs link and the homepage is sparse, try common paths
+            common_paths = ['/docs', '/api', '/api-docs', '/documentation', '/embed', '/player']
+            if len(docs_links) < 1:
+                for path in common_paths:
+                    docs_links.append({"url": p['homepage'].rstrip('/') + path, "reason": "common path heuristic"})
+
+            # Limit to top 2 potential doc pages to avoid infinite crawling
+            for doc_info in docs_links[:2]:
+                print(f"      -> Potential docs at {doc_info['url']} ({doc_info['reason']}), fetching...", end=" ", flush=True)
                 time.sleep(JINA_DELAY)
-                docs_text = jina_get(docs_link)
-                if docs_text:
-                    text += f"\n\n--- API DOCS SUBPAGE ({docs_link}) ---\n" + docs_text
+                docs_text = jina_get(doc_info['url'])
+                if docs_text and len(docs_text.strip()) > 200:
+                    text += f"\n\n--- SUBPAGE ({doc_info['url']}) ---\n" + docs_text
                     print("OK", flush=True)
+                    # If we found something that looks like real docs, we might not need more
+                    if "embed" in docs_text.lower() or "tmdb" in docs_text.lower():
+                        break
                 else:
-                    print("Failed", flush=True)
+                    print("Skipped/Failed", flush=True)
             
             batch_data.append({**p, "text": text})
             time.sleep(JINA_DELAY)  # Stay under 20 req/min free tier limit
@@ -368,6 +394,11 @@ def main():
     }
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
+
+    # Save state after successful run
+    with open(STATE_FILE, "w") as f:
+        json.dump({"hash": current_hash, "updated_at": datetime.now(timezone.utc).isoformat()}, f, indent=2)
+
     print(f"\nDone. Wrote {len(final_results)} providers to {OUTPUT_FILE}", flush=True)
 
 if __name__ == "__main__":
