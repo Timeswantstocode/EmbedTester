@@ -8,11 +8,17 @@ import re
 import json
 import time
 import os
+import sys
 import urllib.request
 import urllib.error
 import random
 from datetime import datetime, timezone
 from urllib.parse import urlparse
+
+# Ensure stdout handles UTF-8 (crucial for Windows terminal)
+if sys.platform == "win32":
+    import io
+    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
 
 JINA_BASE = "https://r.jina.ai/"
 RENTRY_URL = "https://rentry.co/onbksdgu"
@@ -38,7 +44,7 @@ def load_webshare_proxies():
         return
     
     print("Fetching proxy list from Webshare API...", flush=True)
-    req = urllib.request.Request("https://proxy.webshare.io/api/v2/proxy/list/?page=1&page_size=100")
+    req = urllib.request.Request("https://proxy.webshare.io/api/v2/proxy/list/?mode=direct&page=1&page_size=100")
     req.add_header("Authorization", f"Token {api_key}")
     try:
         with urllib.request.urlopen(req, timeout=15) as response:
