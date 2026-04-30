@@ -1,6 +1,439 @@
 {
-  "generated": "2026-04-30T13:37:51.643173+00:00",
+  "generated": "2026-04-30T16:10:18.805034+00:00",
   "tmdb_id": "129",
-  "count": 0,
-  "providers": []
+  "count": 48,
+  "providers": [
+    {
+      "name": "2embed",
+      "homepage": "https://www.2embed.cc/",
+      "embed": "https://www.2embed.cc/embed/129",
+      "tv_embed": "https://www.2embed.cc/embedtv/1399&s=1&e=1",
+      "customizations": "Supports both TMDB and IMDB IDs, with specific endpoints for individual episodes or full seasons.",
+      "llm_profile": "### Base URL: https://www.2embed.cc\n\n### Embed Example:\n- Movie: https://www.2embed.cc/embed/129\n- TV: https://www.2embed.cc/embedtv/1399&s=1&e=1\n\n### URL Structure:\n- Movies: `https://www.2embed.cc/embed/{id}`\n- TV Shows: `https://www.2embed.cc/embedtv/{id}&s={season}&e={episode}`\n- Full Seasons: `https://www.2embed.cc/embedtvfull/{id}`\n\n### Supported IDs:\n- TMDB (numeric)\n- IMDB (with 'tt' prefix)\n\n### Query Parameters:\n- `s`: Season number (for TV)\n- `e`: Episode number (for TV)\n- `imdb_id`: Used in JSON API\n- `tmdb_id`: Used in JSON API\n\n### Player Events / PostMessage API:\n- Not explicitly documented in provided content.\n\n### Integration Notes:\n- Use standard `<iframe>` tags.\n- The provider acts as a content aggregator.\n- API endpoints available at `https://api.2embed.cc/` for metadata retrieval.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "2",
+      "homepage": "https://2embed.skin/",
+      "embed": "https://www.2embed.cc/embed/129",
+      "tv_embed": "https://www.2embed.cc/embedtv/1399&s=1&e=1",
+      "customizations": "Mirror service for 2embed.cc; supports identical URL patterns and API endpoints.",
+      "llm_profile": "### Base URL: https://2embed.skin\n\n### Embed Example:\n- Movie: https://www.2embed.cc/embed/129\n- TV: https://www.2embed.cc/embedtv/1399&s=1&e=1\n\n### URL Structure:\n- Movies: `https://www.2embed.cc/embed/{id}`\n- TV Shows: `https://www.2embed.cc/embedtv/{id}&s={season}&e={episode}`\n- Full Seasons: `https://www.2embed.cc/embedtvfull/{id}`\n\n### Supported IDs:\n- TMDB (numeric)\n- IMDB (with 'tt' prefix)\n\n### Query Parameters:\n- `s`: Season number (for TV)\n- `e`: Episode number (for TV)\n- `imdb_id`: Used in JSON API\n- `tmdb_id`: Used in JSON API\n\n### Player Events / PostMessage API:\n- Not explicitly documented in provided content.\n\n### Integration Notes:\n- Use standard `<iframe>` tags.\n- This domain is an alias/mirror for the 2embed.cc service.\n- API endpoints available at `https://api.2embed.cc/` for metadata retrieval.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "2embed.stream",
+      "homepage": "https://2embed.stream/",
+      "embed": "https://www.2embed.stream/embed/movie/129",
+      "tv_embed": "https://www.2embed.stream/embed/tv/1399/1/1",
+      "customizations": "Provides an auto-detect `iframe.php` endpoint that handles both movies and TV shows automatically.",
+      "llm_profile": "### Base URL: https://2embed.stream\n\n### Embed Example:\n- Movie: https://www.2embed.stream/embed/movie/129\n- TV: https://www.2embed.stream/embed/tv/1399/1/1\n\n### URL Structure:\n- Movies: `https://www.2embed.stream/embed/movie/{id}`\n- TV Shows: `https://www.2embed.stream/embed/tv/{id}/{season}/{episode}`\n- Auto-detect: `https://www.2embed.stream/iframe.php?id={id}`\n\n### Supported IDs:\n- TMDB (numeric)\n- IMDB (with 'tt' prefix)\n\n### Query Parameters:\n- `id`: Required for iframe.php\n\n### Player Events / PostMessage API:\n- Not explicitly documented in provided content.\n\n### Integration Notes:\n- Use standard `<iframe>` tags.\n- Fully responsive player design.\n- Content is aggregated; no hosting on provider servers.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "AeonWatch",
+      "homepage": "https://thisiscinema.pages.dev/",
+      "embed": "https://thisiscinema.pages.dev/?type=movie&version=v3&id=129",
+      "tv_embed": "https://thisiscinema.pages.dev/?type=tv&version=v3&id=1399&season=1&episode=1",
+      "customizations": "Supports versioning (v2/v3), AutoPlay, Poster toggles, and advanced AutoNext features for TV series.",
+      "llm_profile": "### Base URL\nhttps://thisiscinema.pages.dev\n\n### Embed Example\n- Movie: https://thisiscinema.pages.dev/?type=movie&version=v3&id=129\n- TV: https://thisiscinema.pages.dev/?type=tv&version=v3&id=1399&season=1&episode=1\n\n### URL Structure\n- Movies: `/?type=movie&version={v2|v3}&id={id}`\n- TV: `/?type=tv&version={v2|v3}&id={id}&season={s}&episode={e}`\n\n### Supported IDs\n- TMDb (Numeric)\n- IMDb (tt prefix)\n\n### Query Parameters\n- `type`: Required. 'movie' or 'tv'.\n- `version`: Required. 'v2' or 'v3'.\n- `id`: Required. TMDb or IMDb ID.\n- `season`: Required for TV. Integer.\n- `episode`: Required for TV. Integer.\n- `poster`: Optional. Boolean (true/false).\n- `autoPlay`: Optional. Boolean (true/false).\n- `autoNext`: Optional. Boolean (true/false). Requires TMDb ID.\n- `totep`: Optional. Total episodes in season. Required for AutoNext.\n- `tsn`: Optional. Total seasons. Required for AutoNext.\n- `showAutoNextButton`: Optional. Boolean (true/false).\n\n### Player Events / PostMessage API\n- Not documented.\n\n### Integration Notes\n- The provider uses query parameters on the root URL to load the player.\n- AutoNext functionality is restricted to TMDb IDs and requires additional metadata parameters (`totep`, `tsn`).\n- Recommended to use a local static server for testing to avoid iframe/CORS issues.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "Cinemaos",
+      "homepage": "https://cinemaos.tech/embed",
+      "embed": "https://cinemaos.tech/player/129",
+      "tv_embed": "https://cinemaos.tech/player/1399/1/1",
+      "customizations": "Server selection for playback optimization.",
+      "llm_profile": "### Base URL\nhttps://cinemaos.tech\n\n### Embed Example\nhttps://cinemaos.tech/player/129\n\n### URL Structure\n- **Movies**: `/player/{tmdb_id}`\n- **TV Shows**: `/player/{tmdb_id}/{season_number}/{episode_number}`\n\n### Supported IDs\n- TMDB\n- IMDB\n\n### Query Parameters\nNone documented.\n\n### Player Events / PostMessage API\nNone documented.\n\n### Integration Notes\n- Responsive player compatible with Desktop, Mobile, and Tablet.\n- Automatic link updates for quality improvements.\n- Includes a server selection list for optimization.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "CineSRC",
+      "homepage": "https://cinesrc.st/",
+      "embed": "https://cinesrc.st/embed/movie/129",
+      "tv_embed": "",
+      "customizations": "None documented.",
+      "llm_profile": "### Base URL\nhttps://cinesrc.st\n\n### Embed Example\nhttps://cinesrc.st/embed/movie/129\n\n### URL Structure\n- **Movies**: `/embed/movie/{tmdb_id}`\n- **TV Shows**: Not explicitly documented.\n\n### Supported IDs\n- TMDB\n\n### Query Parameters\nNone documented.\n\n### Player Events / PostMessage API\nNone documented.\n\n### Integration Notes\n- Minimal ads implementation.\n- Simple TMDB ID based integration.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "Cinezo API",
+      "homepage": "https://cinezo.live/",
+      "embed": "https://player.cinezo.live/embed/movie/129",
+      "tv_embed": "https://player.cinezo.live/embed/tv/1399/1/1",
+      "customizations": "Extensive UI customization including colors, fonts, and feature toggles (PiP, Chromecast, etc.).",
+      "llm_profile": "### Base URL\nhttps://player.cinezo.live\n\n### Embed Example\nhttps://player.cinezo.live/embed/movie/129\n\n### URL Structure\n- **Movies**: `/embed/movie/{tmdbId}`\n- **TV Shows**: `/embed/tv/{tmdbId}/{season}/{episode}`\n- **Anime**: `/embed/anime/{AnilistId}/{number}`\n\n### Supported IDs\n- TMDB (Movies & TV)\n- AniList (Anime)\n\n### Query Parameters\n- `primarycolor`: Main player theme color (e.g., `e8b86d`)\n- `secondarycolor`: Secondary accent color (e.g., `c49de8`)\n- `iconcolor`: Player icon color (e.g., `ffffff`)\n- `autoplay`: Auto-play on load (`true`/`false`)\n- `poster`: Show movie poster (`true`/`false`)\n- `chromecast`: Enable Chromecast support (`true`/`false`)\n- `servericon`: Show server selection button (`true`/`false`)\n- `setting`: Show player settings button (`true`/`false`)\n- `pip`: Enable Picture-in-Picture mode (`true`/`false`)\n- `font`: Subtitle font family (e.g., `Roboto`)\n- `fontcolor`: Subtitle text color (e.g., `e8b86d`)\n- `fontsize`: Subtitle font size in pixels (e.g., `20`)\n- `opacity`: Subtitle opacity 0-1 (e.g., `0.8`)\n- `logourl`: Custom logo URL\n- `server`: Server name or number for playback\n- `dub`: For anime, audio preference (`true`/`false`)\n\n### Player Events / PostMessage API\n- **Progress Tracking**: Event-driven system monitoring `play`, `pause`, and `seeked` events to enable resume functionality.\n\n### Integration Notes\n- Highly customizable UI via query parameters.\n- Supports anime via AniList IDs with specific dubbing controls.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "Embed Icefy",
+      "homepage": "https://embed.icefy.top/",
+      "embed": "https://embed.icefy.top/movie?id=129",
+      "tv_embed": "https://embed.icefy.top/tv?id=1399&season=1&episode=1",
+      "customizations": "Supports dark mode and responsive design.",
+      "llm_profile": "### Base URL: https://embed.icefy.top/\n\n### Embed Example: \n- Movie: https://embed.icefy.top/movie?id=129\n- TV: https://embed.icefy.top/tv?id=1399&season=1&episode=1\n\n### URL Structure: \n- Movies: `/movie?id=[tmdbId]`\n- TV: `/tv?id=[tmdbId]&season=[season]&episode=[episode]`\n\n### Supported IDs: \n- TMDB\n\n### Query Parameters: \n- id: TMDB ID\n- season: Season number (for TV)\n- episode: Episode number (for TV)\n\n### Player Events / PostMessage API: \n- Not documented.\n\n### Integration Notes: \n- Use standard `<iframe>` elements.\n- Supports HLS (.m3u8) streams.\n- Includes auto-fetched subtitles via OpenSubtitles.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "GdrivePlayer",
+      "homepage": "https://api.gdriveplayer.us/",
+      "embed": "http://database.gdriveplayer.us/player.php?imdb=129",
+      "tv_embed": "",
+      "customizations": "Basic IMDB-based movie embedding via a dedicated player page.",
+      "llm_profile": "### Base URL\nhttps://api.gdriveplayer.us/\n\n### Embed Example\nhttp://database.gdriveplayer.us/player.php?imdb=tt1285016\n\n### URL Structure\n- **Movies**: `http://database.gdriveplayer.us/player.php?imdb={imdb_id}`\n- **TV Shows**: Not provided (API endpoints exist for data, but no player embed URL is documented).\n\n### Supported IDs\n- IMDB\n\n### Query Parameters\n- `imdb` (Required): The IMDB ID of the movie.\n\n### Player Events / PostMessage API\nNone documented.\n\n### Integration Notes\n- The player is hosted on a separate subdomain (`database.gdriveplayer.us`) compared to the API documentation site.\n- The API provides various endpoints for searching and listing movies, anime, and drama, but the actual video playback is handled via the `player.php` endpoint.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "GoDrivePlayer",
+      "homepage": "https://godriveplayer.com/",
+      "embed": "https://godriveplayer.com/player.php?imdb=129",
+      "tv_embed": "https://godriveplayer.com/player.php?type=series&tmdb=1399&season=1&episode=1",
+      "customizations": "Supports custom external subtitles via .vtt files or JSON configurations.",
+      "llm_profile": "### Base URL\nhttps://godriveplayer.com/\n\n### Embed Example\nhttps://godriveplayer.com/player.php?imdb=tt17048514\n\n### URL Structure\n- **Movies**: `/player.php?imdb={imdb_id}`\n- **TV Shows**: `/player.php?type=series&tmdb={tmdb_id}&season={season}&episode={episode}`\n\n### Supported IDs\n- IMDB (for Movies)\n- TMDB (for TV Shows)\n\n### Query Parameters\n- `imdb` (Required for movies): IMDB ID with `tt` prefix.\n- `type` (Required for TV): Set to `series`.\n- `tmdb` (Required for TV): TMDB ID.\n- `season` (Required for TV): Season number.\n- `episode` (Required for TV): Episode number.\n- `sub.file` (Optional): URL to a `.vtt` subtitle file.\n- `sub.label` (Optional): Label for the custom subtitle.\n- `sub.info` (Optional): JSON string containing multiple subtitle configurations.\n\n### Player Events / PostMessage API\nNone documented.\n\n### Integration Notes\n- Custom subtitles must be served with the `Access-Control-Allow-Origin: *` header to avoid CORS issues.\n- The player is responsive and supports quality selection.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "KiraStreams API",
+      "homepage": "https://kirastreamsv2.vercel.app/player-api",
+      "embed": "https://kirastreamsv2.vercel.app/embed/movie/129",
+      "tv_embed": "https://kirastreamsv2.vercel.app/embed/tv/1399?season=1&episode=1",
+      "customizations": "Automatic source switching, HLS adaptive streaming, and OpenSubtitles integration.",
+      "llm_profile": "### Base URL\nhttps://kirastreamsv2.vercel.app/\n\n### Embed Example\nhttps://kirastreamsv2.vercel.app/embed/movie/533535\n\n### URL Structure\n- **Movies**: `/embed/movie/{tmdb_id}`\n- **TV Shows**: `/embed/tv/{tmdb_id}?season={season}&episode={episode}`\n\n### Supported IDs\n- TMDB\n\n### Query Parameters\n- `season` (Required for TV): The season number.\n- `episode` (Required for TV): The episode number.\n\n### Player Events / PostMessage API\nNone documented.\n\n### Integration Notes\n- Recommended iframe attributes: `allowfullscreen`, `allow=\"autoplay; encrypted-media; picture-in-picture\"`.\n- Features automatic source detection and switching across 7+ video sources.\n- Integrated with OpenSubtitles for automated captioning.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "Mapple Player",
+      "homepage": "https://mappletv.uk/",
+      "embed": "https://mapple.uk/watch/movie/129",
+      "tv_embed": "https://mapple.uk/watch/tv/1399-1-1",
+      "customizations": "Supports subtitle timing/styling and auto-next countdown configuration.",
+      "llm_profile": "### Base URL: https://mapple.uk\n\n### Embed Example:\n- Movie: https://mapple.uk/watch/movie/129\n- TV: https://mapple.uk/watch/tv/1399-1-1\n\n### URL Structure:\n- Movies: `https://mapple.uk/watch/movie/{tmdb_id}`\n- TV Shows: `https://mapple.uk/watch/tv/{tmdb_id}-{season}-{episode}`\n\n### Supported IDs:\n- TMDB\n\n### Query Parameters:\n- None documented.\n\n### Player Events / PostMessage API:\n- Not documented.\n\n### Integration Notes:\n- Ad-free player.\n- Supports multi-language subtitles and 4K streaming.\n- Includes built-in progress tracking and auto-next functionality.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "NontonGo",
+      "homepage": "https://nontongo.win/",
+      "embed": "https://www.NontonGo.win/embed/movie/129",
+      "tv_embed": "https://www.NontonGo.win/embed/tv/1399/1/1",
+      "customizations": "Supports multiple ID types (TMDB/IMDB/AniList/MAL) and query-based URL construction.",
+      "llm_profile": "### Base URL: https://www.nontongo.win\n\n### Embed Example:\n- Movie: https://www.NontonGo.win/embed/movie/129\n- TV: https://www.NontonGo.win/embed/tv/1399/1/1\n\n### URL Structure:\n- Movies (TMDB): `https://www.NontonGo.win/embed/movie/{tmdb_id}`\n- TV Shows (TMDB): `https://www.NontonGo.win/embed/tv/{tmdb_id}/{season}/{episode}`\n- Movies (IMDB): `https://www.NontonGo.win/embed/movie/{imdb_id}`\n- TV Shows (IMDB): `https://www.NontonGo.win/embed/tv/{imdb_id}/{season}/{episode}`\n\n### Supported IDs:\n- TMDB, IMDB, AniList, MyAnimeList (MAL)\n\n### Query Parameters:\n- `id`: ID string\n- `s`: Season number\n- `e`: Episode number\n- `type`: Used for MAL integration (e.g., 'MAL_ID')\n\n### Player Events / PostMessage API:\n- Not documented.\n\n### Integration Notes:\n- Site uses both IMDB and TMDB IDs.\n- Anime content uses separate endpoints (`/anime/{id}/{eps}/play`).\n- Recommends Adguard/Adblock for end-users.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "PrimeSRC",
+      "homepage": "https://primesrc.me/",
+      "embed": "https://primesrc.me/embed/movie?tmdb=129",
+      "tv_embed": "https://primesrc.me/embed/tv?tmdb=1399&season=1&episode=1",
+      "customizations": "Supports server filtering (whitelist/blacklist), custom server ordering, and start-time offsets.",
+      "llm_profile": "### Base URL\nhttps://primesrc.me\n\n### Embed Example\n- Movie: https://primesrc.me/embed/movie?tmdb=129\n- TV: https://primesrc.me/embed/tv?tmdb=1399&season=1&episode=1\n\n### URL Structure\n- Movies: `/embed/movie?tmdb={id}` or `/embed/movie?imdb={id}`\n- TV: `/embed/tv?tmdb={id}&season={s}&episode={e}`\n\n### Supported IDs\n- TMDB\n- IMDb\n- TVMaze\n\n### Query Parameters\n- `imdb`: IMDb ID string\n- `tmdb`: TMDB ID integer\n- `tvmaze`: TVMaze ID integer\n- `season`: Season number (required for TV)\n- `episode`: Episode number (required for TV)\n- `fallback`: Boolean (default true), enables third-party sources\n- `serverOrder`: Comma-separated list of server names\n- `whitelistServers`: Comma-separated list of allowed servers\n- `blacklistServers`: Comma-separated list of excluded servers\n- `startAt`: Integer, start time in seconds\n\n### Player Events / PostMessage API\n- Not documented.\n\n### Integration Notes\n- Use the Info API (`/api/v1/list_servers`) to verify server availability before embedding.\n- TV episode numbering follows TVMaze standards, which may differ from TMDB.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "SpenEmbed",
+      "homepage": "https://spencerdevs.xyz/",
+      "embed": "https://spencerdevs.xyz/movie/129",
+      "tv_embed": "https://spencerdevs.xyz/tv/1399/1/1",
+      "customizations": "Custom accent colors via the 'theme' query parameter.",
+      "llm_profile": "### Base URL\nhttps://spencerdevs.xyz/\n\n### Embed Example\nhttps://spencerdevs.xyz/movie/533535\n\n### URL Structure\n- **Movies**: `/movie/:id`\n- **TV Shows**: `/tv/:id/:season/:episode`\n- **Anime**: `/anime/:id/:episode`\n\n### Supported IDs\n- TMDB (Movies and TV Shows)\n- AniList (Anime)\n\n### Query Parameters\n- `theme` (Optional): Custom theme color hex code without the # (e.g., `00ffc9`).\n\n### Player Events / PostMessage API\nNone documented.\n\n### Integration Notes\n- Embeds are responsive; it is recommended to use a container with `aspect-video` for optimal display.\n- No rate limits are currently enforced.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "SuperEmbed",
+      "homepage": "https://www.superembed.stream/",
+      "embed": "https://multiembed.mov/?video_id=129&tmdb=1",
+      "tv_embed": "https://multiembed.mov/?video_id=1399&tmdb=1&s=1&e=1",
+      "customizations": "VIP player access, custom subtitle injection, and server-side PHP implementation.",
+      "llm_profile": "### Base URL\nhttps://multiembed.mov/\n\n### Embed Example\nhttps://multiembed.mov/?video_id=522931&tmdb=1\n\n### URL Structure\n- **Movies**: `?video_id=:id&tmdb=1` (TMDB) or `?video_id=tt:id` (IMDB)\n- **TV Shows**: `?video_id=:id&tmdb=1&s=:season&e=:episode` (TMDB)\n- **VIP Player**: `/directstream.php?video_id=:id`\n\n### Supported IDs\n- TMDB\n- IMDB (supports `tt0000000` or just the numeric ID)\n\n### Query Parameters\n- `video_id` (Required): The IMDB or TMDB ID.\n- `tmdb` (Required for TMDB): Set to `1` to indicate a TMDB ID is being used.\n- `s` or `season` (Required for TV): Season number.\n- `e` or `episode` (Required for TV): Episode number.\n- `check` (VIP only): Set to `1` to check if the VIP player is available (returns 0 or 1).\n- `sub_url` (VIP only): URL to a custom subtitle file (must be urlencoded).\n- `sub_label` (VIP only): Label for the custom subtitle (must be urlencoded).\n\n### Player Events / PostMessage API\nNone documented.\n\n### Integration Notes\n- The VIP player (`/directstream.php`) offers multi-quality, fast HLS streaming, and fewer ads.\n- Advanced integration is available via a downloadable PHP player file for server-side redirection.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "TryEmbed",
+      "homepage": "https://tryembed.us.cc/",
+      "embed": "",
+      "tv_embed": "https://tryembed.us.cc/embed/anime/1399/1/sub",
+      "customizations": "Audio format selection (/sub or /dub), autoplay, auto-skip, and precise start timestamps.",
+      "llm_profile": "### Base URL\nhttps://tryembed.us.cc/\n\n### Embed Example\nhttps://tryembed.us.cc/embed/anime/172463/1/sub\n\n### URL Structure\n- **Anime**: `/embed/anime/:id/:episode/:lang`\n- **Language Path**: Use `/sub` for subtitles or `/dub` for dubbed audio.\n\n### Supported IDs\n- AniList\n\n### Query Parameters\n- `autoplay` (Optional): Set to `true` to force video autoplay.\n- `autoSkip` (Optional): Set to `true` to automatically bypass intro/outro sequences.\n- `startAt` (Optional): Timestamp in seconds to begin playback.\n\n### Player Events / PostMessage API\nSupports a secure messaging bridge for parent applications:\n- **Commands**:\n    - `play` / `pause`: `{}` - Toggles playback state.\n    - `seek`: `{ time: number }` - Jumps to specific second.\n    - `volume`: `{ level: number }` - Adjusts volume (0.0 to 1.0).\n- **Events**: Listens for `PLAYER_EVENT` which returns `event` and `currentTime`.\n\n### Integration Notes\n- Specifically designed for Anime content.\n- Ad-free experience with native Auto-Next and Auto-Skip features.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidAPI.ru",
+      "homepage": "https://vidapi.ru/",
+      "embed": "https://vaplayer.ru/embed/movie/129",
+      "tv_embed": "https://vaplayer.ru/embed/tv/1399/1/1",
+      "customizations": "Customizable player skins (Netflix, Disney+, etc.) and AI-powered search.",
+      "llm_profile": "- Base URL: https://vaplayer.ru\n- Embed Example: https://vaplayer.ru/embed/movie/129\n- URL Structure:\n  - Movie: `/embed/movie/{id}`\n  - TV: `/embed/tv/{id}/{season}/{episode}`\n- Supported IDs: TMDB, IMDB\n- Query Parameters: None documented\n- Player Events / PostMessage API: None documented\n- Integration Notes: Iframe-based API. Supports various player skins (Netflix, YouTube, Disney+, etc.) and PWA support.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidFast",
+      "homepage": "https://vidfast.pro/",
+      "embed": "https://vidfast.pro/movie/129",
+      "tv_embed": "https://vidfast.pro/tv/1399/1/1",
+      "customizations": "Extensive player customization via query parameters including themes, UI toggles, and playback behavior.",
+      "llm_profile": "- Base URL: https://vidfast.pro\n- Embed Example: https://vidfast.pro/movie/129\n- URL Structure:\n  - Movie: `/movie/{id}`\n  - TV: `/tv/{id}/{season}/{episode}`\n- Supported IDs: TMDB, IMDB\n- Query Parameters:\n  - `title`: Toggle media title display\n  - `poster`: Toggle poster image display\n  - `autoPlay`: Start playback automatically\n  - `startAt`: Start time in seconds\n  - `theme`: Player color (hex code)\n  - `server`: Set default server\n  - `hideServer`: Hide server selector\n  - `fullscreenButton`: Toggle fullscreen button\n  - `chromecast`: Toggle Chromecast button\n  - `sub`: Default subtitle language (e.g., en, es, fr)\n  - `nextButton`: Show 'Next Episode' button (TV only)\n  - `autoNext`: Auto-play next episode (TV only)\n- Player Events / PostMessage API: None documented\n- Integration Notes: Supports multiple mirror domains including .pro, .in, .io, .me, .net, .pm, and .xyz.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "2",
+      "homepage": "https://vidfast.xyz/",
+      "embed": "https://vidfast.pro/movie/129",
+      "tv_embed": "https://vidfast.pro/tv/1399/1/1",
+      "customizations": "Extensive player customization via query parameters including themes, UI toggles, and playback behavior.",
+      "llm_profile": "- Base URL: https://vidfast.xyz\n- Embed Example: https://vidfast.pro/movie/129\n- URL Structure:\n  - Movie: `/movie/{id}`\n  - TV: `/tv/{id}/{season}/{episode}`\n- Supported IDs: TMDB, IMDB\n- Query Parameters:\n  - `title`: Toggle media title display\n  - `poster`: Toggle poster image display\n  - `autoPlay`: Start playback automatically\n  - `startAt`: Start time in seconds\n  - `theme`: Player color (hex code)\n  - `server`: Set default server\n  - `hideServer`: Hide server selector\n  - `fullscreenButton`: Toggle fullscreen button\n  - `chromecast`: Toggle Chromecast button\n  - `sub`: Default subtitle language (e.g., en, es, fr)\n  - `nextButton`: Show 'Next Episode' button (TV only)\n  - `autoNext`: Auto-play next episode (TV only)\n- Player Events / PostMessage API: None documented\n- Integration Notes: This provider shares the same infrastructure as VidFast. Supports multiple mirror domains.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "3",
+      "homepage": "https://vidfast.pm/",
+      "embed": "https://vidfast.pro/movie/129",
+      "tv_embed": "https://vidfast.pro/tv/1399/1/1",
+      "customizations": "Supports custom themes (hex), server selection, and playback control parameters like autoPlay and startAt.",
+      "llm_profile": "- Base URL: https://vidfast.pro\n- Embed Example: https://vidfast.pro/movie/129\n- URL Structure: /movie/{id} or /tv/{id}/{season}/{episode}\n- Supported IDs: TMDB, IMDB\n- Query Parameters: title, poster, autoPlay, startAt, theme, server, hideServer, fullscreenButton, chromecast, sub, nextButton, autoNext\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Use standard iframe embedding. Supports custom hex themes and server selection.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "4",
+      "homepage": "https://vidfast.net/",
+      "embed": "https://vidfast.pro/movie/129",
+      "tv_embed": "https://vidfast.pro/tv/1399/1/1",
+      "customizations": "Supports custom themes (hex), server selection, and playback control parameters like autoPlay and startAt.",
+      "llm_profile": "- Base URL: https://vidfast.pro\n- Embed Example: https://vidfast.pro/movie/129\n- URL Structure: /movie/{id} or /tv/{id}/{season}/{episode}\n- Supported IDs: TMDB, IMDB\n- Query Parameters: title, poster, autoPlay, startAt, theme, server, hideServer, fullscreenButton, chromecast, sub, nextButton, autoNext\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Use standard iframe embedding. Supports custom hex themes and server selection.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "6",
+      "homepage": "https://vidfast.io/",
+      "embed": "https://vidfast.pro/movie/129",
+      "tv_embed": "https://vidfast.pro/tv/1399/1/1",
+      "customizations": "Supports custom themes (hex), server selection, and playback control parameters like autoPlay and startAt.",
+      "llm_profile": "- Base URL: https://vidfast.pro\n- Embed Example: https://vidfast.pro/movie/129\n- URL Structure: /movie/{id} or /tv/{id}/{season}/{episode}\n- Supported IDs: TMDB, IMDB\n- Query Parameters: title, poster, autoPlay, startAt, theme, server, hideServer, fullscreenButton, chromecast, sub, nextButton, autoNext\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Use standard iframe embedding. Supports custom hex themes and server selection.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "7",
+      "homepage": "https://vidfast.in/",
+      "embed": "https://vidfast.pro/movie/129",
+      "tv_embed": "https://vidfast.pro/tv/1399/1/1",
+      "customizations": "Supports custom themes (hex), server selection, and playback control parameters like autoPlay and startAt.",
+      "llm_profile": "- Base URL: https://vidfast.pro\n- Embed Example: https://vidfast.pro/movie/129\n- URL Structure: /movie/{id} or /tv/{id}/{season}/{episode}\n- Supported IDs: TMDB, IMDB\n- Query Parameters: title, poster, autoPlay, startAt, theme, server, hideServer, fullscreenButton, chromecast, sub, nextButton, autoNext\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Use standard iframe embedding. Supports custom hex themes and server selection.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "Vidify",
+      "homepage": "https://vidify.top/",
+      "embed": "https://player.vidify.top/embed/movie/129",
+      "tv_embed": "https://player.vidify.top/embed/tv/1399/1/1",
+      "customizations": "Highly customizable UI including colors, fonts, logo, and playback controls via URL parameters.",
+      "llm_profile": "- Base URL: https://player.vidify.top\n- Embed Example: https://player.vidify.top/embed/movie/129\n- URL Structure: /embed/movie/{tmdbId}, /embed/tv/{tmdbId}/{season}/{episode}, /embed/anime/{AnilistId}/{number}\n- Supported IDs: TMDB, AniList\n- Query Parameters: primarycolor, secondarycolor, iconcolor, autoplay, poster, chromecast, servericon, setting, pip, font, fontcolor, fontsize, opacity, logourl, server\n- Player Events / PostMessage API: Event-driven system for play, pause, seeked events.\n- Integration Notes: Supports extensive UI customization via URL parameters. Includes watch progress tracking.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidFlix",
+      "homepage": "https://vidflix.club/",
+      "embed": "https://vidflix.club/movie/129",
+      "tv_embed": "https://vidflix.club/tv/1399/1/1",
+      "customizations": "No documented URL customization parameters.",
+      "llm_profile": "### Base URL\nhttps://vidflix.club/\n\n### Embed Example\n`https://vidflix.club/movie/1062722`\n\n### URL Structure\n- **Movies**: `https://vidflix.club/movie/{tmdb_id}`\n- **TV Shows**: `https://vidflix.club/tv/{tmdb_id}/{season}/{episode}`\n\n### Supported IDs\n- TMDB (The Movie Database)\n\n### Query Parameters\nNone documented.\n\n### Player Events / PostMessage API\nNone documented.\n\n### Integration Notes\n- Standard iframe integration.\n- Requires `allowfullscreen` and `allow=\"encrypted-media\"` attributes for optimal playback.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidKing",
+      "homepage": "https://www.vidking.net/",
+      "embed": "https://www.vidking.net/embed/movie/129",
+      "tv_embed": "https://www.vidking.net/embed/tv/1399/1/1",
+      "customizations": "Customizable primary colors, autoplay, episode navigation, and specific start times.",
+      "llm_profile": "### Base URL\nhttps://www.vidking.net/\n\n### Embed Example\n`https://www.vidking.net/embed/movie/1078605`\n\n### URL Structure\n- **Movies**: `/embed/movie/{tmdbId}`\n- **TV Series**: `/embed/tv/{tmdbId}/{season}/{episode}`\n\n### Supported IDs\n- TMDB\n\n### Query Parameters\n- `color` (string): Primary color hex code without # (e.g., `ff0000`).\n- `autoPlay` (boolean): Enable automatic playback.\n- `nextEpisode` (boolean): Show next episode button (TV only).\n- `episodeSelector` (boolean): Enable episode selection menu (TV only).\n- `progress` (number): Start time in seconds.\n\n### Player Events / PostMessage API\nEvents are sent via `window.postMessage` in the following structure:\n- **Events**: `timeupdate`, `play`, `pause`, `ended`, `seeked`.\n- **Data Payload**: Includes `currentTime`, `duration`, `progress`, `id`, `mediaType`, `season`, and `episode`.\n\n### Integration Notes\n- **Storage**: Uses isolated `localStorage` for different configurations to prevent conflicts.\n- **Performance**: Optimized using HLS.js.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidLink",
+      "homepage": "https://vidlink.pro/",
+      "embed": "https://vidlink.pro/movie/129",
+      "tv_embed": "https://vidlink.pro/tv/1399/1/1",
+      "customizations": "Extensive UI branding (colors, icons), player engine selection (JWPlayer), and external subtitle support.",
+      "llm_profile": "### Base URL\nhttps://vidlink.pro/\n\n### Embed Example\n`https://vidlink.pro/movie/786892`\n\n### URL Structure\n- **Movies**: `/movie/{tmdbId}`\n- **TV Shows**: `/tv/{tmdbId}/{season}/{episode}`\n- **Anime**: `/anime/{MALid}/{number}/{subOrDub}`\n\n### Supported IDs\n- TMDB (Movies & TV)\n- MyAnimeList / MAL (Anime)\n\n### Query Parameters\n- `primaryColor` (string): Hex color for sliders/controls.\n- `secondaryColor` (string): Hex color for progress bar background.\n- `iconColor` (string): Hex color for player icons.\n- `icons` (string): Icon style (`vid` or `default`).\n- `title` (boolean): Show/hide media title.\n- `poster` (boolean): Show/hide poster image.\n- `autoplay` (boolean): Enable automatic playback.\n- `nextbutton` (boolean): Show next episode button at 90% progress.\n- `player` (string): Player type (`jw` for JWPlayer or `default`).\n- `startAt` (number): Start time in seconds.\n- `sub_file` (string): Direct link to external VTT subtitle file.\n- `sub_label` (string): Label for external subtitle track.\n- `fallback_url` (string): Redirect URL if stream fails.\n- `fallback` (boolean): For anime, force fallback to sub/dub if type not found.\n\n### Player Events / PostMessage API\n- **MEDIA_DATA**: Sends content details and watch progress for \"Continue Watching\" features.\n- **PLAYER_EVENT**: Sends playback states (`play`, `pause`, `seeked`, `ended`, `timeupdate`) including `currentTime` and `duration`.\n\n### Integration Notes\n- Supports professional JWPlayer integration.\n- Allows external VTT subtitle injection.\n- Provides a robust `postMessage` system for tracking user progress across devices.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidNest",
+      "homepage": "https://vidnest.fun/",
+      "embed": "https://vidnest.fun/movie/129",
+      "tv_embed": "https://vidnest.fun/tv/1399/1/1",
+      "customizations": "Extensive UI control hiding and server selection via query parameters.",
+      "llm_profile": "### Base URL: https://vidnest.fun\n\n### Embed Example: https://vidnest.fun/movie/129\n\n### URL Structure:\n- Movies: `https://vidnest.fun/movie/{tmdb_id}`\n- TV: `https://vidnest.fun/tv/{tmdb_id}/{season}/{episode}`\n- Anime: `https://vidnest.fun/anime/{anilist_id}/{episode}/{sub_or_dub}`\n\n### Supported IDs:\n- TMDB (Movies/TV)\n- AniList (Anime)\n\n### Query Parameters:\n- `startAt` / `progress`: Start time in seconds.\n- `server`: Force server (lamda, primesrc, sigma, alfa, beta, gama, catflix, hexa, delta).\n- UI Controls: `servericon`, `topcaption`, `topsettings`, `centerseekbackward`, `centerplay`, `centerseekforward`, `timeslider`, `mute`, `volume`, `timegroup`, `bottomcaption`, `bottomsettings`, `pip`, `cast`, `fullscreen`, `prevepisode`, `nextepisode` (values: hide, false, 0, off).\n\n### Player Events / PostMessage API:\n- Supports event-driven progress tracking for resume functionality.\n\n### Integration Notes:\n- No API keys required.\n- Use standard iframe with `allowFullScreen`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidPlays",
+      "homepage": "https://vidplays.fun/",
+      "embed": "https://vidplays.fun/embed/movie/129",
+      "tv_embed": "https://vidplays.fun/embed/tv/1399/1/1",
+      "customizations": "Simple, ad-free embed framework with no configuration required.",
+      "llm_profile": "### Base URL: https://vidplays.fun\n\n### Embed Example: https://vidplays.fun/embed/movie/129\n\n### URL Structure:\n- Movies: `https://vidplays.fun/embed/movie/{tmdb_id}`\n- TV: `https://vidplays.fun/embed/tv/{tmdb_id}/{season}/{episode}`\n\n### Supported IDs:\n- TMDB\n\n### Query Parameters:\n- Not explicitly documented beyond standard embed usage.\n\n### Player Events / PostMessage API:\n- None documented.\n\n### Integration Notes:\n- No API keys required.\n- Ad-free premium player.\n- Use standard iframe with `allowfullscreen`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidPlus",
+      "homepage": "https://vidplus.to/",
+      "embed": "https://player.vidplus.to/embed/movie/129",
+      "tv_embed": "https://player.vidplus.to/embed/tv/1399/1/1",
+      "customizations": "Advanced UI styling, color themes, and feature toggles via query parameters.",
+      "llm_profile": "### Base URL: https://player.vidplus.to\n\n### Embed Example: https://player.vidplus.to/embed/movie/129\n\n### URL Structure:\n- Movies: `https://player.vidplus.to/embed/movie/{tmdbId}`\n- TV: `https://player.vidplus.to/embed/tv/{tmdbId}/{season}/{episode}`\n- Anime: `https://player.vidplus.to/embed/anime/{AnilistId}/{number}?dub={trueOrFalse}`\n\n### Supported IDs:\n- TMDB (Movies/TV)\n- Anilist (Anime)\n\n### Query Parameters:\n- Styling: `primarycolor`, `secondarycolor`, `iconcolor`, `fontcolor`, `fontsize`, `opacity`, `icons`.\n- Features: `autoplay`, `autoNext`, `nextButton`, `poster`, `title`, `progress`, `watchparty`, `chromecast`, `episodelist`, `servericon`, `server`.\n\n### Player Events / PostMessage API:\n- None documented.\n\n### Integration Notes:\n- Highly customizable player interface.\n- Supports custom logo URLs.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "vidrock",
+      "homepage": "https://vidrock.net/",
+      "embed": "https://vidrock.net/movie/129",
+      "tv_embed": "https://vidrock.net/tv/1399/1/1",
+      "customizations": "Supports dual ID types (TMDB/IMDB) for flexible integration.",
+      "llm_profile": "### Base URL: https://vidrock.net\n\n### Embed Example: https://vidrock.net/movie/129\n\n### URL Structure:\n- Movies: `https://vidrock.net/movie/{tmdb_id_or_imdb_id}`\n- TV: `https://vidrock.net/tv/{tmdb_id_or_imdb_id}/{season}/{episode}`\n\n### Supported IDs:\n- TMDB\n- IMDB\n\n### Query Parameters:\n- Not explicitly documented.\n\n### Player Events / PostMessage API:\n- None documented.\n\n### Integration Notes:\n- Supports both TMDB and IMDB IDs.\n- Provides JSON lists of content at `/list/movie.json` and `/list/tv.json`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidRush",
+      "homepage": "https://vidrush.net/",
+      "embed": "https://player.vidrush.net/embed/movie/129",
+      "tv_embed": "https://player.vidrush.net/embed/tv/1399/1/1",
+      "customizations": "Advanced player styling, subtitle customization, and progress tracking.",
+      "llm_profile": "### Base URL: https://player.vidrush.net\n\n### Embed Example: https://player.vidrush.net/embed/movie/129\n\n### URL Structure:\n- Movies: `https://player.vidrush.net/embed/movie/{tmdbId}`\n- TV: `https://player.vidrush.net/embed/tv/{tmdbId}/{season}/{episode}`\n- Anime: `https://player.vidrush.net/embed/anime/{AnilistId}/{number}?dub={trueOrFalse}`\n\n### Supported IDs:\n- TMDB (Movies/TV)\n- AniList (Anime)\n\n### Query Parameters:\n- Colors: `primarycolor`, `secondarycolor`, `iconcolor`.\n- Subtitles: `font`, `fontcolor`, `fontsize`, `opacity`.\n- Features: `autoplay`, `poster`, `chromecast`, `servericon`, `setting`, `pip`, `logourl`, `server`.\n\n### Player Events / PostMessage API:\n- Event-driven system for monitoring playback progress.\n\n### Integration Notes:\n- Includes persistent local storage for resume functionality.\n- Highly configurable UI via query parameters.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidSrc.co",
+      "homepage": "https://vidsrc.co/",
+      "embed": "https://player.vidplus.to/embed/movie/129",
+      "tv_embed": "https://player.vidplus.to/embed/tv/1399/1/1",
+      "customizations": "Extensive UI customization including primary/secondary/icon colors, subtitle styling, and control visibility.",
+      "llm_profile": "- Base URL: https://player.vidplus.to\n- Embed Example: https://player.vidplus.to/embed/movie/129\n- URL Structure:\n    - Movies: `/embed/movie/{tmdbId}`\n    - TV Shows: `/embed/tv/{tmdbId}/{season}/{episode}`\n    - Anime: `/embed/anime/{anilistId}/{episode}?dub={true|false}`\n- Supported IDs: TMDB (Movies/TV), AniList (Anime)\n- Query Parameters:\n    - `primarycolor`: Hex color for sliders/autoplay (e.g., `B20710`)\n    - `secondarycolor`: Hex color for progress bar background (e.g., `170000`)\n    - `iconcolor`: Hex color for player icons\n    - `autoplay`: `true` or `false`\n    - `autoNext`: `true` or `false`\n    - `nextButton`: `true` or `false`\n    - `fontcolor`: Hex color for subtitles\n    - `fontsize`: Subtitle font size in px\n    - `opacity`: Subtitle background opacity (0.0 to 1.0)\n    - `poster`: `true` or `false` to show content poster\n    - `title`: `true` or `false` to show content title\n    - `icons`: `vid` for VidStack style or `default`\n    - `progress`: Starting position in seconds\n    - `watchparty`: `true` or `false` to enable synchronized viewing\n    - `chromecast`: `true` or `false` to enable Chromecast\n    - `episodelist`: `true` or `false` to show episode list\n    - `servericon`: `true` or `false` to show server icon\n    - `server`: Server name or number (e.g., `hindi` or `14`)\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Embed via iframe with `frameborder=\"0\"` and `allowfullscreen`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidSrc.me",
+      "homepage": "https://vidsrcme.ru/",
+      "embed": "https://v2.vidsrc.me/embed/129",
+      "tv_embed": "https://v2.vidsrc.me/embed/1399/1/1",
+      "customizations": "Player color can be customized by adding `/color-{hex}` to the end of the URL.",
+      "llm_profile": "- Base URL: https://v2.vidsrc.me\n- Embed Example: https://v2.vidsrc.me/embed/tt1300854\n- URL Structure:\n    - Movies: `/embed/{imdbId}`\n    - TV Shows: `/embed/{imdbId}/{season}/{episode}`\n- Supported IDs: IMDB\n- Query Parameters: None (uses path-based customization)\n- Player Events / PostMessage API: Not documented\n- Integration Notes: The provider uses IMDB IDs. Customization is handled via a path suffix `/color-{hex}`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "2",
+      "homepage": "https://vidsrcme.su/",
+      "embed": "https://v2.vidsrc.me/embed/129",
+      "tv_embed": "https://v2.vidsrc.me/embed/1399/1/1",
+      "customizations": "Player color can be customized by adding `/color-{hex}` to the end of the URL.",
+      "llm_profile": "- Base URL: https://v2.vidsrc.me\n- Embed Example: https://v2.vidsrc.me/embed/tt1300854\n- URL Structure:\n    - Movies: `/embed/{imdbId}`\n    - TV Shows: `/embed/{imdbId}/{season}/{episode}`\n- Supported IDs: IMDB\n- Query Parameters: None (uses path-based customization)\n- Player Events / PostMessage API: Not documented\n- Integration Notes: The provider uses IMDB IDs. Customization is handled via a path suffix `/color-{hex}`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "3",
+      "homepage": "https://vidsrc-me.ru/",
+      "embed": "https://v2.vidsrc.me/embed/129",
+      "tv_embed": "https://v2.vidsrc.me/embed/1399/1-1",
+      "customizations": "Supports custom player accent colors via URL suffix.",
+      "llm_profile": "- Base URL: https://v2.vidsrc.me\n- Embed Example: https://v2.vidsrc.me/embed/129\n- URL Structure: \n  - Movies: /embed/{tmdb_id}\n  - TV: /embed/{tmdb_id}/{season}-{episode}\n- Supported IDs: TMDB, IMDB (supports tt-prefixed IDs)\n- Query Parameters: \n  - color-{hex}: Customizes player accent color (e.g., color-15006D)\n- Player Events / PostMessage API: Not documented.\n- Integration Notes: \n  - Responsive iframe design.\n  - Supports WordPress plugins for Dooplay/Psyplay themes.\n  - Ad reduction available for high-traffic sites (>10k daily users).",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "4",
+      "homepage": "https://vidsrc-me.su/",
+      "embed": "https://v2.vidsrc.me/embed/129",
+      "tv_embed": "https://v2.vidsrc.me/embed/1399/1-1",
+      "customizations": "Supports custom player accent colors via URL suffix.",
+      "llm_profile": "- Base URL: https://v2.vidsrc.me\n- Embed Example: https://v2.vidsrc.me/embed/129\n- URL Structure: \n  - Movies: /embed/{tmdb_id}\n  - TV: /embed/{tmdb_id}/{season}-{episode}\n- Supported IDs: TMDB, IMDB (supports tt-prefixed IDs)\n- Query Parameters: \n  - color-{hex}: Customizes player accent color (e.g., color-15006D)\n- Player Events / PostMessage API: Not documented.\n- Integration Notes: \n  - Responsive iframe design.\n  - Supports WordPress plugins for Dooplay/Psyplay themes.\n  - Ad reduction available for high-traffic sites (>10k daily users).",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "5",
+      "homepage": "https://vidsrc-embed.ru/",
+      "embed": "https://v2.vidsrc.me/embed/129",
+      "tv_embed": "https://v2.vidsrc.me/embed/1399/1-1",
+      "customizations": "Supports custom player accent colors via URL suffix.",
+      "llm_profile": "- Base URL: https://v2.vidsrc.me\n- Embed Example: https://v2.vidsrc.me/embed/129\n- URL Structure: \n  - Movies: /embed/{tmdb_id}\n  - TV: /embed/{tmdb_id}/{season}-{episode}\n- Supported IDs: TMDB, IMDB (supports tt-prefixed IDs)\n- Query Parameters: \n  - color-{hex}: Customizes player accent color (e.g., color-15006D)\n- Player Events / PostMessage API: Not documented.\n- Integration Notes: \n  - Responsive iframe design.\n  - Supports WordPress plugins for Dooplay/Psyplay themes.\n  - Ad reduction available for high-traffic sites (>10k daily users).",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "6",
+      "homepage": "https://vidsrc-embed.su/",
+      "embed": "https://v2.vidsrc.me/embed/129",
+      "tv_embed": "https://v2.vidsrc.me/embed/1399/1-1",
+      "customizations": "Supports custom player accent colors via URL suffix.",
+      "llm_profile": "- Base URL: https://v2.vidsrc.me\n- Embed Example: https://v2.vidsrc.me/embed/129\n- URL Structure: \n  - Movies: /embed/{tmdb_id}\n  - TV: /embed/{tmdb_id}/{season}-{episode}\n- Supported IDs: TMDB, IMDB (supports tt-prefixed IDs)\n- Query Parameters: \n  - color-{hex}: Customizes player accent color (e.g., color-15006D)\n- Player Events / PostMessage API: Not documented.\n- Integration Notes: \n  - Responsive iframe design.\n  - Supports WordPress plugins for Dooplay/Psyplay themes.\n  - Ad reduction available for high-traffic sites (>10k daily users).",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "7",
+      "homepage": "https://vsrc.su/",
+      "embed": "https://v2.vidsrc.me/embed/129",
+      "tv_embed": "https://v2.vidsrc.me/embed/1399/1-1",
+      "customizations": "Supports custom player accent colors via URL suffix.",
+      "llm_profile": "- Base URL: https://v2.vidsrc.me\n- Embed Example: https://v2.vidsrc.me/embed/129\n- URL Structure: \n  - Movies: /embed/{tmdb_id}\n  - TV: /embed/{tmdb_id}/{season}-{episode}\n- Supported IDs: TMDB, IMDB (supports tt-prefixed IDs)\n- Query Parameters: \n  - color-{hex}: Customizes player accent color (e.g., color-15006D)\n- Player Events / PostMessage API: Not documented.\n- Integration Notes: \n  - Responsive iframe design.\n  - Supports WordPress plugins for Dooplay/Psyplay themes.\n  - Ad reduction available for high-traffic sites (>10k daily users).",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidSrc.to",
+      "homepage": "https://vidsrc.to/",
+      "embed": "https://vidsrc.to/embed/movie/129",
+      "tv_embed": "https://vidsrc.to/embed/tv/1399/1/1",
+      "customizations": "Supports custom subtitles via single file or JSON configuration.",
+      "llm_profile": "- Base URL: https://vidsrc.to\n- Embed Example: https://vidsrc.to/embed/movie/129\n- URL Structure:\n    - Movie: `/embed/movie/{id}`\n    - TV Show: `/embed/tv/{id}/{season}/{episode}`\n- Supported IDs: TMDB, IMDB (IMDB IDs must include the `tt` prefix)\n- Query Parameters:\n    - `sub.info`: A JSON string containing an array of subtitle objects (e.g., `[{ \"file\": \"url\", \"label\": \"English\", \"kind\": \"captions\" }]`)\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Custom subtitle files must be served with the `Access-Control-Allow-Origin: *` header.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidSrc.vip",
+      "homepage": "https://vidsrc.vip/",
+      "embed": "https://vidrock.ru/movie/129",
+      "tv_embed": "https://vidrock.ru/tv/1399/1/1",
+      "customizations": "Player customization available via query parameters.",
+      "llm_profile": "- Base URL: https://vidrock.ru\n- Embed Example: https://vidrock.ru/movie/129\n- URL Structure:\n    - Movie: `/movie/{id}`\n    - TV Show: `/tv/{id}/{season}/{episode}`\n- Supported IDs: TMDB, IMDB\n- Query Parameters: Mentioned as available for player customization, but specific keys are not listed in the documentation.\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Although the provider name is VidSrc.vip, the API endpoints are hosted on `vidrock.ru`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VixSrc",
+      "homepage": "https://vixsrc.to/",
+      "embed": "https://vixsrc.to/movie/129",
+      "tv_embed": "https://vixsrc.to/tv/1399/1/1",
+      "customizations": "Extensive UI customization (colors), playback control (autoplay, start time), and language selection.",
+      "llm_profile": "- Base URL: https://vixsrc.to\n- Embed Example: https://vixsrc.to/movie/129\n- URL Structure:\n    - Movie: `/movie/{tmdbId}`\n    - TV Show: `/tv/{tmdbId}/{season}/{episode}`\n- Supported IDs: TMDB\n- Query Parameters:\n    - `primaryColor`: Hex color code (without #) for sliders and controls\n    - `secondaryColor`: Hex color code (without #) for the progress bar background\n    - `autoplay`: Boolean (`true`/`false`)\n    - `startAt`: Start time in seconds\n    - `lang`: Preferred audio track language (e.g., `it`)\n- Player Events / PostMessage API: Events sent via `postMessage` to parent window:\n    - `play`, `pause`, `seeked`, `ended`, `timeupdate`\n    - Data structure: `{ type: \"PLAYER_EVENT\", data: { event: string, currentTime: number, duration: number, video_id: number } }`\n- Integration Notes: Offers custom embed domains and custom CDN proxying to bypass ISP blocks.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "VidUP",
+      "homepage": "https://vidup.to/",
+      "embed": "https://vidup.to/movie/129",
+      "tv_embed": "https://vidup.to/tv/1399/1/1",
+      "customizations": "Supports theme customization via hex codes and various UI toggle parameters.",
+      "llm_profile": "- Base URL: https://vidup.to/\n- Embed Example: https://vidup.to/movie/533535\n- URL Structure: \n  - Movies: `https://vidup.to/movie/{id}`\n  - TV: `https://vidup.to/tv/{id}/{season}/{episode}`\n- Supported IDs: IMDB, TMDB\n- Query Parameters: title, poster, autoPlay, startAt, theme, server, hideServer, fullscreenButton, chromecast, sub\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Supports IMDB or TMDB IDs. Theme accepts hex codes.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "Vidzee",
+      "homepage": "https://vidzee.wtf/",
+      "embed": "https://player.vidzee.wtf/embed/movie/129",
+      "tv_embed": "https://player.vidzee.wtf/embed/tv/1399/1/1",
+      "customizations": "Provides standard and V2 player versions.",
+      "llm_profile": "- Base URL: https://player.vidzee.wtf/\n- Embed Example: https://player.vidzee.wtf/embed/movie/550\n- URL Structure: \n  - Movies: `https://player.vidzee.wtf/embed/movie/{tmdb_id}`\n  - TV: `https://player.vidzee.wtf/embed/tv/{tmdb_id}/{season}/{episode}`\n- Supported IDs: TMDB\n- Query Parameters: Not documented\n- Player Events / PostMessage API: Not documented\n- Integration Notes: Offers V2 alternative player endpoints at `/v2/embed/`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "Vidzen",
+      "homepage": "https://vidzen.fun/",
+      "embed": "https://vidzen.fun/movie/129",
+      "tv_embed": "https://vidzen.fun/tv/1399/1/1",
+      "customizations": "Supports provider selection (HyroX) and playback state control.",
+      "llm_profile": "- Base URL: https://vidzen.fun/\n- Embed Example: https://vidzen.fun/movie/666243\n- URL Structure: \n  - Movies: `https://vidzen.fun/movie/[TMDB_ID]`\n  - TV: `https://vidzen.fun/tv/[TMDB_ID]/[SEASON]/[EPISODE]`\n- Supported IDs: TMDB\n- Query Parameters: server, startAt, autoplay, muted\n- Player Events / PostMessage API: `MEDIA_DATA` event via `window.postMessage` for progress tracking.\n- Integration Notes: Requires `allowFullScreen`. Progress data is stored in `localStorage`.",
+      "source": "ai_gemma_batch"
+    },
+    {
+      "name": "Docs",
+      "homepage": "https://vyla.mintlify.app/introduction",
+      "embed": "https://vyla-api.pages.dev/api/player?id=129&type=movie",
+      "tv_embed": "https://vyla-api.pages.dev/api/player?id=1399&s=1&e=1&type=tv",
+      "customizations": "Unified API aggregating 8 providers with automatic quality sorting.",
+      "llm_profile": "- Base URL: https://vyla-api.pages.dev\n- Embed Example: https://vyla-api.pages.dev/api/player\n- URL Structure: \n  - Movies: `https://vyla-api.pages.dev/api/player?id={tmdb_id}&type=movie`\n  - TV: `https://vyla-api.pages.dev/api/player?id={tmdb_id}&s={season}&e={episode}&type=tv`\n- Supported IDs: TMDB\n- Query Parameters: id, type, s, e\n- Player Events / PostMessage API: Not documented\n- Integration Notes: API returns CORS headers `Access-Control-Allow-Origin: *`. Provides enriched stream/download data.",
+      "source": "ai_gemma_batch"
+    }
+  ]
 }
