@@ -21,15 +21,18 @@ OUTPUT_FILE = "sources.json"
 JINA_DELAY = 3.2
 BATCH_SIZE = 5  # Gemma 256K can easily handle 5+ full provider pages
 
-HEADERS = {
-    "User-Agent": "FAMSourceVerifier/3.0 (github-actions AI-batch)",
+# Jina Reader headers — use their documented format, no custom User-Agent
+# Rate limit: 20 req/min on free tier = minimum 3s between requests
+JINA_HEADERS = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+    "X-Return-Format": "text",
     "Accept": "text/plain",
 }
 
 def jina_get(url: str) -> str:
     try:
-        req = urllib.request.Request(JINA_BASE + url, headers=HEADERS)
-        with urllib.request.urlopen(req, timeout=30) as response:
+        req = urllib.request.Request(JINA_BASE + url, headers=JINA_HEADERS)
+        with urllib.request.urlopen(req, timeout=45) as response:
             return response.read().decode('utf-8')
     except Exception as e:
         print(f"  [JINA ERROR] {url}: {e}")
@@ -99,29 +102,40 @@ def extract_batch_with_ai(batch: list[dict]) -> list[dict]:
     for i, p in enumerate(batch):
         providers_input += f"\n--- PROVIDER {i+1} ---\nNAME: {p['name']}\nHOMEPAGE: {p['homepage']}\nCONTENT:\n{p['text']}\n"
 
-    prompt = f"""You are an expert web scraper. You are given the text of {len(batch)} different streaming provider websites.
-Extract the Movie and TV embed URL templates for EACH provider.
+    prompt = f"""You are an expert API documentation engineer analysing streaming embed provider websites.
+You are given the scraped text content of {len(batch)} different streaming embed providers.
+For EACH provider, produce complete, actionable integration documentation.
 
-RULES:
-1. Movie Embed: Replace TMDB ID placeholder with "{TMDB_MOVIE_ID}".
-2. TV Embed: Replace TMDB ID with "{TMDB_TV_ID}", Season with "1", Episode with "1".
-3. LLM Profile: Create a highly detailed "Provider Profile" describing URL structure, supported parameters, and constraints.
-4. Return ONLY a raw JSON object (no markdown, no explanation) with a "results" array.
+CRITICAL RULES:
+1. Return ONLY a raw JSON object. No markdown. No explanation. No commentary outside the JSON.
+2. The JSON must have a single top-level key: "results" (an array, one entry per provider).
+3. For movie_embed: construct the full URL using TMDB ID "{TMDB_MOVIE_ID}".
+4. For tv_embed: construct the full URL using TMDB ID "{TMDB_TV_ID}", season "1", episode "1".
+5. If the site uses IMDB IDs instead of TMDB, note it in llm_profile and still produce the URL with the TMDB constant.
+6. If a URL pattern cannot be determined from the content, set movie_embed and tv_embed to empty strings.
 
-JSON schema:
+For each provider's "llm_profile", write a structured technical reference covering ALL of the following that appear in the content:
+  A. EMBED URL STRUCTURE — exact path pattern for movies and TV (e.g. /embed/movie/{{tmdb_id}} or /embed/tv/{{tmdb_id}}/{{season}}/{{episode}})
+  B. SUPPORTED ID TYPES — TMDB, IMDB, TVMaze, AniList, etc.
+  C. QUERY PARAMETERS — list every documented parameter with its type, allowed values, and what it controls
+  D. PLAYER EVENTS / POSTMESSAGE API — any window.postMessage events the player emits or listens to (e.g. timeupdate, ended, ready)
+  E. INTEGRATION NOTES — any iframe sandbox requirements, CORS notes, or authentication requirements
+  F. CUSTOMIZATION SUMMARY — a one-line summary of the most useful toggles
+
+JSON schema (output exactly this shape):
 {{
   "results": [
     {{
-      "name": "Provider Name",
+      "name": "Provider Name (must match the NAME field exactly)",
       "movie_embed": "https://...",
       "tv_embed": "https://...",
-      "llm_profile": "Detailed documentation...",
-      "customizations": "Brief summary of toggles..."
+      "llm_profile": "Structured technical reference as described above.",
+      "customizations": "One-line summary of key customization options."
     }}
   ]
 }}
 
-Providers to analyze:
+Providers to analyse:
 {providers_input}
 """
 
@@ -172,7 +186,9 @@ def main():
     rentry_text = jina_get(RENTRY_URL)
     if not rentry_text: return
     providers = parse_rentry(rentry_text)
-    print(f"Found {len(providers)} providers. Processing in batches of {BATCH_SIZE}...\n")
+    print(f"Found {len(providers)} providers. Processing in batches of {BATCH_SIZE}...")
+    time.sleep(JINA_DELAY)  # Respect rate limit after fetching Rentry
+    print()
 
     final_results = []
     for i in range(0, len(providers), BATCH_SIZE):
@@ -188,7 +204,7 @@ def main():
                 print(f"      - {p['name']}: Skipped (Jina failed)")
                 continue
             batch_data.append({**p, "text": text})
-            time.sleep(JINA_DELAY)
+            time.sleep(JINA_DELAY)  # Stay under 20 req/min free tier limit
 
         if not batch_data:
             print(f"    All providers in this batch skipped.")
