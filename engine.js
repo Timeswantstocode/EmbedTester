@@ -47,28 +47,47 @@ function downloadState() {
 }
 
 function triggerUpload() {
-  document.getElementById('uploadInput').click();
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json';
+  input.onchange = handleUpload;
+  input.click();
 }
 
 function handleUpload(e) {
   const file = e.target.files[0];
   if (!file) return;
 
+  if (!file.name.endsWith('.json')) {
+    log('Error: Only .json files are allowed', 'error');
+    alert('Please select a valid .json backup file.');
+    e.target.value = '';
+    return;
+  }
+
   const reader = new FileReader();
   reader.onload = (evt) => {
     try {
       const imported = JSON.parse(evt.target.result);
-      if (!imported.results) throw new Error('Invalid backup file');
+      
+      // Strict Validation
+      if (!imported || typeof imported !== 'object' || !imported.results || !Array.isArray(imported.providers)) {
+        throw new Error('Malformed backup file structure');
+      }
       
       state = imported;
       saveState();
       renderAll();
-      log('State restored from backup', 'success');
-      setStatus('Restored', 'pass');
+      log(`Restored ${state.providers.length} providers from backup`, 'success');
+      alert('Backup restored successfully!');
     } catch (err) {
-      log('Upload failed: ' + err.message, 'error');
+      log('Restore failed: ' + err.message, 'error');
+      alert('Invalid Backup: ' + err.message);
+    } finally {
+      e.target.value = ''; // Reset input
     }
   };
+  reader.onerror = () => log('Error reading file', 'error');
   reader.readAsText(file);
 }
 
@@ -216,6 +235,8 @@ function renderProviderList() {
         ${p.llm_profile ? `<div class="pi-embed" style="color:var(--accent); font-size:10px; margin-top:4px;"><strong>LLM Profile Available</strong></div>` : ''}
       </div>
       <div class="pi-actions">
+        <button class="btn-xs" style="background:rgba(255,255,255,0.05);" onclick="openDocsModal('${esc(p.name)}')">Docs</button>
+        <button class="btn-xs" style="background:var(--accent-dim); color:var(--accent); border-color:var(--accent);" onclick="openNotesModal('${esc(p.name)}')">Notes</button>
         ${p.embed ? `<button class="btn-xs test" onclick="openInLab(${idx})">Test</button>` : ''}
       </div>
     `;

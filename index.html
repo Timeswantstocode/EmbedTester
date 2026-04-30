@@ -44,7 +44,6 @@
   <nav class="tabs">
     <button class="tab active" data-tab="explorer" onclick="switchTab('explorer')">Source Explorer</button>
     <button class="tab" data-tab="lab" onclick="switchTab('lab')">Test Lab</button>
-    <button class="tab" data-tab="results" onclick="switchTab('results')">Notes & Verifications</button>
   </nav>
 
   <!-- EXPLORER TAB -->
@@ -134,18 +133,6 @@
           <div class="panel-body" id="activeTestInfo">
             <div class="muted-text">No provider selected</div>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- RESULTS TAB (Verification Log) -->
-  <div id="tab-results" class="tab-content">
-    <div class="panel">
-      <div class="panel-head"><span>Personal Verification Log</span><span class="chip" id="resultsChip">0 completed</span></div>
-      <div class="panel-body" style="padding:0">
-        <div id="resultsTable" class="results-list">
-          <div class="empty-state">No notes yet. Record your verification notes in the Manual Lab.</div>
         </div>
       </div>
     </div>
