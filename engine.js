@@ -370,11 +370,23 @@ function labMark(status) {
   renderResults();
   log(`${name} → ${status.toUpperCase()}`, status === 'pass' ? 'success' : 'error');
 
-  // Auto-advance to next untested provider
+  // Advanced logic: Auto-advance or Clear
   if (idx !== null) {
-    const next = state.providers.findIndex((p, i) => i > idx && !state.results[p.name]);
-    if (next !== -1) openInLab(next);
-    else { labClear(); switchTab('results'); }
+    const shouldAdvance = document.getElementById('autoAdvance').checked;
+    
+    if (shouldAdvance) {
+      const next = state.providers.findIndex((p, i) => i > idx && !state.results[p.name]);
+      if (next !== -1) {
+        openInLab(next);
+      } else {
+        log('All providers tested!', 'success');
+        labClear();
+      }
+    } else {
+      labClear();
+    }
+  } else {
+    labClear();
   }
 }
 
