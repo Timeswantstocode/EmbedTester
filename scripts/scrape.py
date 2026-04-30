@@ -27,17 +27,17 @@ TMDB_MOVIE_ID = "129"
 TMDB_TV_ID = "1399"
 OUTPUT_FILE = "sources.json"
 STATE_FILE = "scripts/last_rentry_state.json"
-JINA_DELAY = 3.2
+JINA_DELAY = 1.0  # Reduced to 1.0s as requested, using rotating proxies
 BATCH_SIZE = 5  # Gemma 256K can easily handle 5+ full provider pages
 
 # Jina Reader headers — default to Markdown (no X-Return-Format: text)
-# Rate limit: 20 req/min on free tier = minimum 3s between requests
 JINA_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
 }
 
-# Global proxy list loaded from Webshare API
+# Global proxy list and rotation counter
 WEBSHARE_PROXIES = []
+proxy_index = 0
 
 def load_webshare_proxies():
     """Fetch proxy list from Webshare API if a key is provided."""
@@ -63,13 +63,17 @@ def load_webshare_proxies():
         print(f"Error loading Webshare proxies: {e}", flush=True)
 
 def jina_get(url: str) -> str:
+    global proxy_index
     req = urllib.request.Request(JINA_BASE + url, headers=JINA_HEADERS)
     
     # Try up to 3 times with different proxies
     attempts_allowed = min(3, len(WEBSHARE_PROXIES)) if WEBSHARE_PROXIES else 0
     
     for attempt in range(attempts_allowed):
-        proxy_url = random.choice(WEBSHARE_PROXIES)
+        # Rotating proxy selection
+        proxy_url = WEBSHARE_PROXIES[proxy_index % len(WEBSHARE_PROXIES)]
+        proxy_index += 1
+
         proxy_handler = urllib.request.ProxyHandler({'http': proxy_url, 'https': proxy_url})
         opener = urllib.request.build_opener(proxy_handler)
         
@@ -78,7 +82,7 @@ def jina_get(url: str) -> str:
                 return response.read().decode('utf-8')
         except Exception as e:
             print(f"    [Proxy Attempt {attempt+1} Failed]: {e}", flush=True)
-            time.sleep(1) # Small delay before trying next proxy
+            time.sleep(0.5) # Small delay before trying next proxy
             
     # Fallback to direct (no proxy) if all proxies failed or if no proxies available
     if WEBSHARE_PROXIES:
@@ -350,7 +354,7 @@ def main():
                     print("Skipped/Failed", flush=True)
             
             batch_data.append({**p, "text": text})
-            time.sleep(JINA_DELAY)  # Stay under 20 req/min free tier limit
+            time.sleep(JINA_DELAY)  # Use reduced delay with rotating proxies
 
         if not batch_data:
             print(f"    All providers in this batch skipped.", flush=True)
