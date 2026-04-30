@@ -50,6 +50,9 @@ def load_webshare_proxies():
         with urllib.request.urlopen(req, timeout=15) as response:
             data = json.loads(response.read().decode('utf-8'))
             for p in data.get("results", []):
+                # Ensure the proxy is currently marked valid by Webshare
+                if not p.get("valid", True):
+                    continue
                 # Format: http://username:password@ip:port
                 proxy_url = f"http://{p['username']}:{p['password']}@{p['proxy_address']}:{p['port']}"
                 WEBSHARE_PROXIES.append(proxy_url)
@@ -58,22 +61,30 @@ def load_webshare_proxies():
         print(f"Error loading Webshare proxies: {e}", flush=True)
 
 def jina_get(url: str) -> str:
-    try:
-        req = urllib.request.Request(JINA_BASE + url, headers=JINA_HEADERS)
+    req = urllib.request.Request(JINA_BASE + url, headers=JINA_HEADERS)
+    
+    # Try up to 3 times with different proxies
+    attempts_allowed = min(3, len(WEBSHARE_PROXIES)) if WEBSHARE_PROXIES else 0
+    
+    for attempt in range(attempts_allowed):
+        proxy_url = random.choice(WEBSHARE_PROXIES)
+        proxy_handler = urllib.request.ProxyHandler({'http': proxy_url, 'https': proxy_url})
+        opener = urllib.request.build_opener(proxy_handler)
         
-        # If we have proxies, pick a random one for this request
-        if WEBSHARE_PROXIES:
-            proxy_url = random.choice(WEBSHARE_PROXIES)
-            proxy_handler = urllib.request.ProxyHandler({
-                'http': proxy_url,
-                'https': proxy_url
-            })
-            opener = urllib.request.build_opener(proxy_handler)
-            response = opener.open(req, timeout=45)
-        else:
-            response = urllib.request.urlopen(req, timeout=45)
+        try:
+            with opener.open(req, timeout=45) as response:
+                return response.read().decode('utf-8')
+        except Exception as e:
+            print(f"    [Proxy Attempt {attempt+1} Failed]: {e}", flush=True)
+            time.sleep(1) # Small delay before trying next proxy
             
-        return response.read().decode('utf-8')
+    # Fallback to direct (no proxy) if all proxies failed or if no proxies available
+    if WEBSHARE_PROXIES:
+        print("    [Falling back to direct connection...]", flush=True)
+        
+    try:
+        with urllib.request.urlopen(req, timeout=45) as response:
+            return response.read().decode('utf-8')
     except Exception as e:
         print(f"  [JINA ERROR] {url}: {e}", flush=True)
         return ""
