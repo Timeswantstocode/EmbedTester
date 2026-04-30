@@ -460,7 +460,7 @@ function labMark(status) {
 
   // 2. Persist
   saveState();
-  renderProviderList();
+  renderAll();
   log(`Verified: ${name} (${status.toUpperCase()})`, status === 'pass' ? 'success' : 'error');
 
   // 3. Find next provider
