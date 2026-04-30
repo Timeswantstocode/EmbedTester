@@ -373,15 +373,11 @@ function openInLab(idx) {
     ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:10px;border-radius:8px;border:1px solid rgba(255,204,0,0.15);"><strong>Customization:</strong><br><div class="markdown-body" style="margin-top:5px;font-size:11px;">${mdToHtml(p.customizations)}</div></div>` : ''}
     ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:10px;border-radius:8px;border:1px solid rgba(0,255,204,0.15);"><strong>LLM Provider Documentation:</strong><br><div class="markdown-body" style="margin-top:5px;font-size:11px;color:var(--text)">${mdToHtml(p.llm_profile)}</div></div>` : ''}
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
-    
-    <div style="margin-top:15px; background: rgba(255,255,255,0.02); padding:10px; border-radius:8px; border: 1px solid var(--border);">
-      <label style="font-size:11px; color:var(--muted); margin-bottom:5px; display:block;">Optional Notes (Reason for Pass/Fail):</label>
-      <textarea id="labNotes" style="width:100%; height:60px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:8px; font-size:12px; font-family:inherit; resize:none;" placeholder="Enter specific feedback or reasons here..."></textarea>
-    </div>
   `;
 
   labLoad();
   document.getElementById('labResultBtns').style.display = 'flex';
+  document.getElementById('labNotesContainer').style.display = 'block';
 }
 
 function labLoad() {
@@ -409,12 +405,13 @@ function labLoad() {
   // Pre-fill notes if they exist for this provider/URL
   const name = state.activeIdx !== null ? state.providers[state.activeIdx].name : url;
   const existing = state.results[name];
-  if (existing && existing.notes) {
-    const notesBox = document.getElementById('labNotes');
-    if (notesBox) notesBox.value = existing.notes;
+  const notesBox = document.getElementById('labNotes');
+  if (notesBox) {
+    notesBox.value = (existing && existing.notes) ? existing.notes : '';
   }
 
   log(`Loaded: ${url} (Sandbox: ${useSandbox ? 'ON' : 'OFF'})`, 'info');
+  adjustNotesHeight();
 }
 
 function labClear() {
@@ -428,6 +425,7 @@ function labClear() {
       <div>Enter an embed URL and click Load</div>
     </div>`;
   document.getElementById('labResultBtns').style.display = 'none';
+  document.getElementById('labNotesContainer').style.display = 'none';
   state.activeIdx = null;
   document.getElementById('activeTestInfo').innerHTML = '<div class="muted-text">No provider selected</div>';
 }
@@ -595,4 +593,19 @@ document.getElementById('saveNotesBtn')?.addEventListener('click', () => {
 });
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
-window.onload = loadState;
+window.onload = () => {
+  loadState();
+
+  // Attach auto-resize listener to lab notes
+  const notesArea = document.getElementById('labNotes');
+  if (notesArea) {
+    notesArea.addEventListener('input', adjustNotesHeight);
+  }
+};
+
+function adjustNotesHeight() {
+  const el = document.getElementById('labNotes');
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
