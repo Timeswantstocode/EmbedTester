@@ -98,12 +98,14 @@ def jina_get(url: str) -> str:
         except urllib.error.HTTPError as e:
             print(f"  [JINA ERROR] {url}: HTTP {e.code}", flush=True)
             if e.code == 422:
-                print(f"    -> Jina cannot process this URL (Unprocessable Entity).", flush=True)
+                print(f"    -> Jina cannot process this URL (Unprocessable Entity). Site might be blocking Jina or is too complex.", flush=True)
             elif e.code == 400:
                 print(f"    -> Bad Request (Invalid URL or parameters).", flush=True)
             elif e.code == 503:
-                print(f"    -> Jina busy (503). Retrying...", flush=True)
-                time.sleep(2 * (attempt + 1))
+                # Exponential backoff for Jina 503
+                wait_time = (attempt + 1) * 5
+                print(f"    -> Jina busy (503). Waiting {wait_time}s and retrying...", flush=True)
+                time.sleep(wait_time)
                 continue
             break
         except Exception as e:
@@ -184,31 +186,38 @@ CRITICAL RULES:
 6. BE PROACTIVE: Look for "hidden" patterns. Sometimes URLs are mentioned in text as "https://site.com/embed/movie/ID" or similar. Even if you see a button, dropdown, or JS code mentioned, try to deduce the URL structure from the text around it.
 7. If a URL pattern cannot be determined from the content (e.g., if the page is just an error, a security update guide, or completely unrelated to streaming APIs), set BOTH movie_embed and tv_embed to empty strings.
 
-For each provider's "llm_profile", write a beautifully formatted, clean markdown document. Use `###` headers for EVERY section. Use newlines and bullet points for readability. It MUST NOT look like a giant wall of text.
+For each provider's "llm_profile", write a beautifully formatted, clean markdown document.
+Use `###` headers for EVERY section.
+Use double newlines between sections.
+Use bullet points for lists.
+DO NOT use a giant wall of text.
 
-EXAMPLE FORMAT:
+Example of a PERFECT "llm_profile":
 ### Base URL
-https://site.com
+https://vidapi.example.com
 
 ### Embed Example
-https://site.com/embed/movie/129
+https://vidapi.example.com/embed/movie/129
 
 ### URL Structure
-- **Movies**: `/embed/movie/{id}`
-- **TV**: `/embed/tv/{id}/{s}/{e}`
+- **Movies**: `https://vidapi.example.com/embed/movie/{id}`
+- **TV Series**: `https://vidapi.example.com/embed/tv/{id}/{season}/{episode}`
 
 ### Supported IDs
-- TMDB (Numeric)
+- TMDB ID (Primary)
+- IMDB ID (Supported with `tt` prefix)
 
 ### Query Parameters
-- `autoplay`: boolean
-- `theme`: hex color
+- `ds`: Disable subtitles (0 or 1)
+- `auto`: Autoplay (true/false)
 
 ### Player Events / PostMessage API
-- `play`, `pause`, `timeupdate`
+- `vidsrc:play`: Triggered when video starts.
+- `vidsrc:error`: Triggered on playback failure.
 
 ### Integration Notes
-- Supports HLS. No API key needed.
+- CORS is enabled. No API key required for embedding.
+- Supports mobile devices and responsive containers.
 
 JSON schema (output exactly this shape):
 {{
@@ -392,7 +401,7 @@ def main():
                             docs_links.append({"url": base_link, "reason": f"keyword match: {link_text}"})
 
             # Heuristic: try common paths
-            common_paths = ['/docs', '/api', '/api-docs', '/player-api', '/api/docs', '/documentation', '/embed', '/player']
+            common_paths = ['/docs', '/api', '/api-docs', '/player-api', '/api/docs', '/documentation', '/embed', '/player', '/dev', '/integration', '/developers']
 
             # Skip sub-pages if homepage is already very detailed (>10KB) and likely has embed info
             skip_heuristics = len(text) > 10240 and ("tmdb" in text.lower() or "embed" in text.lower())
