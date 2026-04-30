@@ -44,6 +44,7 @@
   <nav class="tabs">
     <button class="tab active" data-tab="explorer" onclick="switchTab('explorer')">Source Explorer</button>
     <button class="tab" data-tab="lab" onclick="switchTab('lab')">Test Lab</button>
+    <button class="tab" data-tab="history" onclick="switchTab('history')">History</button>
   </nav>
 
   <!-- EXPLORER TAB -->
@@ -137,6 +138,21 @@
           <div class="panel-body" id="activeTestInfo">
             <div class="muted-text">No provider selected</div>
           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HISTORY TAB -->
+  <div id="tab-history" class="tab-content">
+    <div class="panel">
+      <div class="panel-head">
+        <span>Verification History</span>
+        <button class="btn-xs" style="background:var(--red); color:#fff; border:none;" onclick="clearHistory()">Clear All History</button>
+      </div>
+      <div class="panel-body" style="padding:0">
+        <div id="historyTable" class="results-list">
+          <div class="empty-state">No history recorded yet.</div>
         </div>
       </div>
     </div>

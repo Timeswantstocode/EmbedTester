@@ -188,7 +188,7 @@ async function startLoad() {
 // ─── RENDER ──────────────────────────────────────────────────────────────────
 function renderAll() {
   renderProviderList();
-  renderResults();
+  renderHistory();
   renderStats();
 }
 
@@ -244,6 +244,63 @@ function renderProviderList() {
   });
 
   renderStats();
+}
+
+function renderHistory() {
+  const list = document.getElementById('historyTable');
+  if (!list) return;
+  
+  const entries = Object.entries(state.results);
+  if (entries.length === 0) {
+    list.innerHTML = '<div class="empty-state">No history recorded yet.</div>';
+    return;
+  }
+
+  // Sort by time descending (using string comparison for HH:MM:SS format)
+  entries.sort((a,b) => b[1].time.localeCompare(a[1].time));
+
+  list.innerHTML = '';
+  entries.forEach(([name, r]) => {
+    const div = document.createElement('div');
+    div.className = 'result-row ' + r.status;
+    
+    div.innerHTML = `
+      <div class="rr-provider-group">
+        <button class="rr-provider-btn" onclick="openDocsModal('${esc(name)}')">
+          ${esc(name)}
+          <div style="font-size:9px; font-weight:400; opacity:0.7; margin-top:2px;">click for docs</div>
+        </button>
+        <button class="rr-notes-btn" onclick="openNotesModal('${esc(name)}')">View Notes</button>
+      </div>
+      <div style="display:flex; align-items:center; gap:15px;">
+        <div class="rr-time">${r.time || ''}</div>
+        <button class="btn-xs" style="background:rgba(255,51,85,0.1); color:var(--red); border-color:var(--red);" onclick="deleteHistoryItem('${esc(name)}')">Delete</button>
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+function deleteHistoryItem(name) {
+  if (!confirm(`Delete verification for ${name}?`)) return;
+  delete state.results[name];
+  
+  // Find provider and reset status to idle
+  const p = state.providers.find(prov => prov.name === name);
+  if (p) p.status = 'idle';
+
+  saveState();
+  renderAll();
+  log(`Deleted history for ${name}`, 'warn');
+}
+
+function clearHistory() {
+  if (!confirm('Are you sure you want to clear the entire verification history? This will reset all statuses.')) return;
+  state.results = {};
+  state.providers.forEach(p => p.status = 'idle');
+  saveState();
+  renderAll();
+  log('History cleared', 'warn');
 }
 
 function renderStats() {
