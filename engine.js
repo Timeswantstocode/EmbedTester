@@ -378,11 +378,11 @@ function labMark(status) {
     return; 
   }
 
-  // Save result
+  // 1. Record the result immediately
   state.results[name] = {
     status,
     embed: url,
-    notes: notes || (status === 'pass' ? 'Video played successfully' : 'Failed to play / issues found'),
+    notes: notes || (status === 'pass' ? 'Video played' : 'Failed/Issues'),
     time:  new Date().toLocaleTimeString(),
   };
 
@@ -390,32 +390,33 @@ function labMark(status) {
     state.providers[idx].status = status;
   }
 
+  // 2. Persist
   saveState();
   renderProviderList();
-  log(`Marked ${name} as ${status.toUpperCase()}`, status === 'pass' ? 'success' : 'error');
+  log(`Verified: ${name} (${status.toUpperCase()})`, status === 'pass' ? 'success' : 'error');
 
-  const shouldAdvance = document.getElementById('autoAdvance')?.checked;
+  // 3. Find next untested provider
+  const shouldAdvance = document.getElementById('autoAdvance')?.checked !== false; // Default to true
 
   if (shouldAdvance) {
-    // Find next untested provider (preferring ones after current index)
+    // Look forward first
     let nextIdx = -1;
-    
-    // 1. Look forward
     if (idx !== null) {
       nextIdx = state.providers.findIndex((p, i) => i > idx && !state.results[p.name]);
     }
     
-    // 2. Wrap around to start if not found
+    // If not found forward, search from the beginning for any untested
     if (nextIdx === -1) {
       nextIdx = state.providers.findIndex(p => !state.results[p.name]);
     }
 
     if (nextIdx !== -1) {
-      log(`Auto-advancing to: ${state.providers[nextIdx].name}`, 'info');
-      openInLab(nextIdx);
+      log(`Next Untested: ${state.providers[nextIdx].name}`, 'info');
+      // Delay slightly to ensure previous render finishes
+      setTimeout(() => openInLab(nextIdx), 50);
     } else {
-      log('All providers have been tested! Great job.', 'success');
-      alert('All providers tested!');
+      log('🎉 ALL PROVIDERS TESTED!', 'success');
+      alert('Congratulations! All providers in the database have been tested.');
       labClear();
     }
   } else {
