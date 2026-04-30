@@ -260,7 +260,10 @@ function renderResults() {
     
     div.innerHTML = `
       <div class="rr-provider-group">
-        <button class="rr-provider-btn" onclick="openDocsModal('${esc(name)}')">${esc(name)}</button>
+        <button class="rr-provider-btn" onclick="openDocsModal('${esc(name)}')">
+          ${esc(name)}
+          <div style="font-size:9px; font-weight:400; opacity:0.7; margin-top:2px;">click for docs</div>
+        </button>
         <button class="rr-notes-btn" onclick="openNotesModal('${esc(name)}')">View Notes</button>
       </div>
       <div class="rr-time">${r.time || ''}</div>
