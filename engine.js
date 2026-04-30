@@ -350,39 +350,53 @@ function labClear() {
 
 function labMark(status) {
   const url   = document.getElementById('labUrl').value.trim();
-  const notes = document.getElementById('labNotes').value.trim();
+  const notes = document.getElementById('labNotes')?.value.trim() || '';
   const idx   = state.activeIdx;
   const name  = idx !== null ? state.providers[idx]?.name : url;
 
-  if (!name) { log('No provider active', 'warn'); return; }
+  if (!name) { 
+    log('No provider active to mark', 'warn'); 
+    return; 
+  }
 
+  // Save result
   state.results[name] = {
     status,
     embed: url,
-    notes: notes || (status === 'pass' ? 'Video played' : 'Failed test'),
+    notes: notes || (status === 'pass' ? 'Video played successfully' : 'Failed to play / issues found'),
     time:  new Date().toLocaleTimeString(),
   };
 
-  if (idx !== null) state.providers[idx].status = status;
+  if (idx !== null) {
+    state.providers[idx].status = status;
+  }
 
   saveState();
   renderProviderList();
-  renderResults();
-  log(`${name} → ${status.toUpperCase()}`, status === 'pass' ? 'success' : 'error');
+  log(`Marked ${name} as ${status.toUpperCase()}`, status === 'pass' ? 'success' : 'error');
 
-  // Advanced logic: Auto-advance or Clear
-  if (idx !== null) {
-    const shouldAdvance = document.getElementById('autoAdvance').checked;
+  const shouldAdvance = document.getElementById('autoAdvance')?.checked;
+
+  if (shouldAdvance) {
+    // Find next untested provider (preferring ones after current index)
+    let nextIdx = -1;
     
-    if (shouldAdvance) {
-      const next = state.providers.findIndex((p, i) => i > idx && !state.results[p.name]);
-      if (next !== -1) {
-        openInLab(next);
-      } else {
-        log('All providers tested!', 'success');
-        labClear();
-      }
+    // 1. Look forward
+    if (idx !== null) {
+      nextIdx = state.providers.findIndex((p, i) => i > idx && !state.results[p.name]);
+    }
+    
+    // 2. Wrap around to start if not found
+    if (nextIdx === -1) {
+      nextIdx = state.providers.findIndex(p => !state.results[p.name]);
+    }
+
+    if (nextIdx !== -1) {
+      log(`Auto-advancing to: ${state.providers[nextIdx].name}`, 'info');
+      openInLab(nextIdx);
     } else {
+      log('All providers have been tested! Great job.', 'success');
+      alert('All providers tested!');
       labClear();
     }
   } else {
