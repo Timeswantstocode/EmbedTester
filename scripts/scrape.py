@@ -289,12 +289,25 @@ def main():
             docs_link = None
             for m in re.finditer(r'\[(.*?)\]\((.*?)\)', text):
                 link_text, link_url = m.group(1).lower(), m.group(2)
+                
+                # Ignore anchor links that just scroll down the page
+                if link_url.startswith('#') or link_url == '/' or 'javascript:' in link_url:
+                    continue
+                    
                 if 'api' in link_text or 'doc' in link_text or 'developer' in link_text:
+                    potential_link = None
                     if link_url.startswith('/'):
-                        docs_link = p['homepage'].rstrip('/') + link_url
+                        potential_link = p['homepage'].rstrip('/') + link_url
                     elif link_url.startswith('http'):
-                        docs_link = link_url
-                    break
+                        potential_link = link_url
+                        
+                    # Ensure it's actually a different page, not just the homepage with an anchor
+                    if potential_link:
+                        base_home = p['homepage'].split('#')[0].rstrip('/')
+                        base_link = potential_link.split('#')[0].rstrip('/')
+                        if base_link != base_home:
+                            docs_link = base_link
+                            break
             
             # If text is suspiciously short and no link found, blindly try /docs
             if not docs_link and len(text) < 1000 and "embed" not in text.lower():
