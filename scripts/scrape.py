@@ -284,6 +284,32 @@ def main():
                 print("Skipped (Jina failed)", flush=True)
                 continue
             print("OK", flush=True)
+            
+            # Smart Sub-page fetching: if the page is short or contains a link to "docs/api"
+            docs_link = None
+            for m in re.finditer(r'\[(.*?)\]\((.*?)\)', text):
+                link_text, link_url = m.group(1).lower(), m.group(2)
+                if 'api' in link_text or 'doc' in link_text or 'developer' in link_text:
+                    if link_url.startswith('/'):
+                        docs_link = p['homepage'].rstrip('/') + link_url
+                    elif link_url.startswith('http'):
+                        docs_link = link_url
+                    break
+            
+            # If text is suspiciously short and no link found, blindly try /docs
+            if not docs_link and len(text) < 1000 and "embed" not in text.lower():
+                docs_link = p['homepage'].rstrip('/') + '/docs'
+                
+            if docs_link:
+                print(f"      -> Found potential docs at {docs_link}, fetching...", end=" ", flush=True)
+                time.sleep(JINA_DELAY)
+                docs_text = jina_get(docs_link)
+                if docs_text:
+                    text += f"\n\n--- API DOCS SUBPAGE ({docs_link}) ---\n" + docs_text
+                    print("OK", flush=True)
+                else:
+                    print("Failed", flush=True)
+            
             batch_data.append({**p, "text": text})
             time.sleep(JINA_DELAY)  # Stay under 20 req/min free tier limit
 
