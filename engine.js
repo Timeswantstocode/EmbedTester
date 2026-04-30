@@ -390,11 +390,15 @@ function labLoad() {
   if (!url) return;
 
   // Auto-detect provider if URL matches one in our list
+  // Optimization: only auto-switch if we don't have an active provider OR the loaded URL belongs to a different one
   const foundIdx = state.providers.findIndex(p => p.embed === url || p.tv_embed === url);
-  if (foundIdx !== -1 && state.activeIdx !== foundIdx) {
-    log(`Auto-detected provider: ${state.providers[foundIdx].name}`, 'info');
-    openInLab(foundIdx); // This will update the UI and re-call labLoad, which is fine
-    return;
+  if (foundIdx !== -1) {
+    // If we're already testing this provider, don't re-trigger openInLab (prevents loops/glitches)
+    if (state.activeIdx !== foundIdx) {
+      log(`Auto-detected provider: ${state.providers[foundIdx].name}`, 'info');
+      openInLab(foundIdx);
+      return;
+    }
   }
 
   const useSandbox = document.getElementById('useSandbox').checked;
