@@ -36,20 +36,24 @@ def jina_get(url: str) -> str:
         return ""
 
 def ask_gemma(prompt: str, model_name: str) -> dict | None:
+    """Call Gemini API mirroring FAM's gemini.ts pattern exactly."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
+        print("  [Error] GEMINI_API_KEY not set.")
         return None
         
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+    
+    # thinkingConfig is nested INSIDE generationConfig (FAM pattern)
     payload = {
         "contents": [{ "role": "user", "parts": [{"text": prompt}] }],
         "generationConfig": {
             "temperature": 0.1,
-            "responseMimeType": "application/json"
-        },
-        "thinkingConfig": {
-            "includeThoughts": True,
-            "thinkingLevel": "MEDIUM"
+            "responseMimeType": "application/json",
+            "thinkingConfig": {
+                "includeThoughts": True,
+                "thinkingBudget": 8192
+            }
         }
     }
     
@@ -57,11 +61,35 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
     req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
     
     try:
-        with urllib.request.urlopen(req, timeout=90) as response:
+        with urllib.request.urlopen(req, timeout=120) as response:
             result = json.loads(response.read().decode('utf-8'))
-            text = result['candidates'][0]['content']['parts'][0]['text']
-            text = text.replace('```json', '').replace('```', '').strip()
+            # Extract text from response
+            parts = result.get('candidates', [{}])[0].get('content', {}).get('parts', [])
+            text = ""
+            for part in parts:
+                if 'text' in part:
+                    text += part['text']
+            
+            # Strip markdown code fences if present
+            text = text.strip()
+            if '```' in text:
+                text = re.sub(r'```(?:json)?\s*', '', text).replace('```', '').strip()
+            
+            # Find JSON object in the text (handles cases where model adds extra commentary)
+            json_match = re.search(r'\{[\s\S]*\}', text)
+            if json_match:
+                return json.loads(json_match.group(0))
             return json.loads(text)
+    except urllib.error.HTTPError as e:
+        body = ""
+        try: body = e.read().decode('utf-8')[:300]
+        except: pass
+        print(f"  [Gemma Error {model_name}]: HTTP {e.code}")
+        if body: print(f"  [Detail]: {body}")
+        # 400 = bad request (fatal), 401/403 = auth (fatal) — mirror FAM's isFatalError()
+        if e.code in (400, 401, 403):
+            return "FATAL"
+        return None
     except Exception as e:
         print(f"  [Gemma Error {model_name}]: {e}")
         return None
@@ -73,27 +101,23 @@ def extract_batch_with_ai(batch: list[dict]) -> list[dict]:
     for i, p in enumerate(batch):
         providers_input += f"\n--- PROVIDER {i+1} ---\nNAME: {p['name']}\nHOMEPAGE: {p['homepage']}\nCONTENT:\n{p['text']}\n"
 
-    prompt = f"""System Instruction:
-You are an expert web scraper. You are given the text of {len(batch)} different streaming provider websites.
+    prompt = f"""You are an expert web scraper. You are given the text of {len(batch)} different streaming provider websites.
 Extract the Movie and TV embed URL templates for EACH provider.
 
 RULES:
 1. Movie Embed: Replace TMDB ID placeholder with "{TMDB_MOVIE_ID}".
 2. TV Embed: Replace TMDB ID with "{TMDB_TV_ID}", Season with "1", Episode with "1".
-3. LLM Profile: Create a highly detailed "Provider Profile" designed for other LLMs to read. It should describe:
-   - The URL structure for movies and TV.
-   - All supported parameters (e.g., color, theme, autoplay).
-   - Any specific constraints or features (e.g., "Supports TMDB only", "Ad-free", "Requires referer").
-4. Return a JSON object with a "results" array.
+3. LLM Profile: Create a highly detailed "Provider Profile" describing URL structure, supported parameters, and constraints.
+4. Return ONLY a raw JSON object (no markdown, no explanation) with a "results" array.
 
-Expected JSON schema:
+JSON schema:
 {{
   "results": [
     {{
       "name": "Provider Name",
       "movie_embed": "https://...",
       "tv_embed": "https://...",
-      "llm_profile": "Detailed LLM-friendly documentation here...",
+      "llm_profile": "Detailed documentation...",
       "customizations": "Brief summary of toggles..."
     }}
   ]
@@ -103,14 +127,25 @@ Providers to analyze:
 {providers_input}
 """
 
+    # Alternate: 31B → 26B → 31B → 26B → 31B → 26B
     models = ["gemma-4-31b-it", "gemma-4-26b-a4b-it"]
-    for attempt in range(3):
+    for attempt in range(6):
         model = models[attempt % 2]
-        print(f"    -> Batch Attempt {attempt + 1} ({model})...")
+        print(f"    -> Attempt {attempt + 1}/6 ({model})...")
         res = ask_gemma(prompt, model)
-        if res and "results" in res:
+        
+        # Fatal error means the request itself is bad — no point retrying same payload
+        if res == "FATAL":
+            print(f"    -> Fatal error (400/401/403). Skipping remaining attempts.")
+            break
+        
+        if res and isinstance(res, dict) and "results" in res:
+            print(f"    -> Success on attempt {attempt + 1}!")
             return res["results"]
-        time.sleep(5)
+        wait = 10 if attempt < 2 else 20
+        print(f"    -> Waiting {wait}s before retry...")
+        time.sleep(wait)
+    print("    -> All attempts exhausted. Using fallback.")
     return []
 
 def fallback_url(homepage: str) -> str:
