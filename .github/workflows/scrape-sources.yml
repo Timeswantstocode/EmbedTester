@@ -1,9 +1,15 @@
 name: Scrape & Update Sources
 
 on:
-  workflow_dispatch:   # Manual trigger from Actions tab
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force scrape even if no changes detected'
+        required: false
+        default: 'false'
+        type: boolean
   schedule:
-    - cron: '0 6 * * 1'   # Auto-run every Monday at 06:00 UTC
+    - cron: '0 6 */3 * *'   # Every 3 days at 06:00 UTC
 
 permissions:
   contents: write
@@ -22,12 +28,13 @@ jobs:
       - name: Run scraper
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          FORCE_RUN: ${{ github.event.inputs.force || 'false' }}
         run: python scripts/scrape.py
 
-      - name: Commit sources.json
+      - name: Commit changes
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add sources.json
-          git diff --cached --quiet || git commit -m "chore: update sources [$(date -u '+%Y-%m-%d %H:%M UTC')]"
+          git add sources.json scripts/last_rentry_state.json
+          git diff --cached --quiet || git commit -m "chore: update sources and state [$(date -u '+%Y-%m-%d %H:%M UTC')]"
           git push
