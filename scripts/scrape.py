@@ -139,8 +139,9 @@ Providers to analyse:
 {providers_input}
 """
 
-    # Alternate: 31B → 26B → 31B → 26B → 31B → 26B
-    models = ["gemma-4-31b-it", "gemma-4-26b-a4b-it"]
+    # Primary: Gemini Flash Lite (fast, structured JSON output)
+    # Fallback: Gemma 31B (large context, used if primary fails)
+    models = ["gemini-3.1-flash-lite-preview", "gemma-4-31b-it"]
     for attempt in range(6):
         model = models[attempt % 2]
         print(f"    -> Attempt {attempt + 1}/6 ({model})...")
