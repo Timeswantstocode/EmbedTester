@@ -370,8 +370,8 @@ function openInLab(idx) {
     <div class="pi-url" style="margin-bottom:4px;">${p.homepage}</div>
     <div class="pi-embed"><strong>Movie:</strong> ${p.embed || 'None'}</div>
     ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
-    ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:6px;border-radius:6px;"><strong>Customization:</strong><br>${mdToHtml(p.customizations)}</div>` : ''}
-    ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:8px;border-radius:6px;border:1px solid rgba(0,255,204,0.1);"><strong>LLM Provider Documentation:</strong><br><div style="margin-top:4px;color:var(--text)">${mdToHtml(p.llm_profile)}</div></div>` : ''}
+    ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:10px;border-radius:8px;border:1px solid rgba(255,204,0,0.15);"><strong>Customization:</strong><br><div class="markdown-body" style="margin-top:5px;font-size:11px;">${mdToHtml(p.customizations)}</div></div>` : ''}
+    ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:10px;border-radius:8px;border:1px solid rgba(0,255,204,0.15);"><strong>LLM Provider Documentation:</strong><br><div class="markdown-body" style="margin-top:5px;font-size:11px;color:var(--text)">${mdToHtml(p.llm_profile)}</div></div>` : ''}
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
     
     <div style="margin-top:15px; background: rgba(255,255,255,0.02); padding:10px; border-radius:8px; border: 1px solid var(--border);">
