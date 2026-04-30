@@ -95,7 +95,7 @@ def jina_get(url: str) -> str:
         print(f"  [JINA ERROR] {url}: {e}", flush=True)
         return ""
 
-def ask_gemma(prompt: str, model_name: str) -> dict | None:
+def ask_gemma(prompt: str, model_name: str) -> dict | str | None:
     """Call Gemini API mirroring FAM's gemini.ts pattern exactly."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
@@ -104,8 +104,6 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
         
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
     
-    # No thinkingConfig — including thoughts causes them to be concatenated into
-    # the JSON output string, breaking json.loads() every time.
     payload = {
         "contents": [{ "role": "user", "parts": [{"text": prompt}] }],
         "generationConfig": {
@@ -120,20 +118,16 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
     try:
         with urllib.request.urlopen(req, timeout=180) as response:
             result = json.loads(response.read().decode('utf-8'))
-            # Extract text — skip any thought parts (they have a 'thought' key)
-            # to prevent thinking text from being concatenated with the JSON.
             parts = result.get('candidates', [{}])[0].get('content', {}).get('parts', [])
             text = ""
             for part in parts:
                 if 'text' in part and not part.get('thought', False):
                     text += part['text']
             
-            # Strip markdown code fences if present
             text = text.strip()
             if '```' in text:
                 text = re.sub(r'```(?:json)?\s*', '', text).replace('```', '').strip()
             
-            # Find JSON object in the text (handles cases where model adds extra commentary)
             json_match = re.search(r'\{[\s\S]*\}', text)
             if json_match:
                 return json.loads(json_match.group(0))
@@ -144,9 +138,11 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
         except: pass
         print(f"  [Gemma Error {model_name}]: HTTP {e.code}", flush=True)
         if body: print(f"  [Detail]: {body}", flush=True)
-        # 400 = bad request (fatal), 401/403 = auth (fatal) — mirror FAM's isFatalError()
+        # 400/401/403 are fatal. 503 is "High Demand" (retryable).
         if e.code in (400, 401, 403):
             return "FATAL"
+        if e.code == 503:
+            return "RETRYABLE_BUSY"
         return None
     except Exception as e:
         print(f"  [Gemma Error {model_name}]: {e}", flush=True)
@@ -199,53 +195,77 @@ Providers to analyse:
 {providers_input}
 """
 
-    # Primary: Gemini Flash Lite (fast, structured JSON output)
-    # Fallback: Gemma 31B (large context, used if primary fails)
     models = ["gemini-3.1-flash-lite-preview", "gemma-4-31b-it"]
     for attempt in range(6):
         model = models[attempt % 2]
         print(f"    -> Attempt {attempt + 1}/6 ({model})...", flush=True)
         res = ask_gemma(prompt, model)
         
-        # Fatal error means the request itself is bad — no point retrying same payload
         if res == "FATAL":
-            print(f"    -> Fatal error (400/401/403). Skipping remaining attempts.", flush=True)
+            print(f"    -> Fatal error. Skipping remaining attempts.", flush=True)
             break
         
+        if res == "RETRYABLE_BUSY":
+            # Exponential backoff for 503 errors
+            wait = (2 ** attempt) * 10
+            print(f"    -> Model busy (503). Waiting {wait}s...", flush=True)
+            time.sleep(wait)
+            continue
+
         if res and isinstance(res, dict) and "results" in res:
             print(f"    -> Success on attempt {attempt + 1}!", flush=True)
             return res["results"]
+
         wait = 10 if attempt < 2 else 20
         print(f"    -> Waiting {wait}s before retry...", flush=True)
         time.sleep(wait)
-    print("    -> All attempts exhausted. Using fallback.", flush=True)
+    print("    -> All attempts exhausted.", flush=True)
     return []
-
-def fallback_url(homepage: str) -> str:
-    try: hostname = urlparse(homepage).hostname or homepage
-    except Exception: hostname = homepage
-    return f"https://{hostname}/embed/movie/{TMDB_MOVIE_ID}"
 
 def parse_rentry(text: str) -> list[dict]:
     providers = []
-    seen_urls = set()
-    # Flexible regex to catch [Name](URL) regardless of leading asterisks/bullets
-    pattern = re.compile(r'\[([^\]]+)\]\((https?://[^\)]+)\)')
-    for m in pattern.finditer(text):
-        name, url = m.group(1).strip(), m.group(2).strip()
+    lines = text.split('\n')
+
+    # regex for [Name](URL)
+    link_pattern = re.compile(r'\[([^\]]+)\]\((https?://[^\)]+)\)')
+
+    current_provider = None
+
+    for line in lines:
+        line = line.strip()
+        if not line.startswith('*'): continue
         
-        # Skip specific non-provider tools by name
-        name_lower = name.lower()
-        if any(term in name_lower for term in ["theintrodb", "discord", "telegram", "wyzie subs", "libre subs", "npm package"]):
+        matches = list(link_pattern.finditer(line))
+        if not matches: continue
+
+        # The first link on the line is usually the main provider
+        main_name, main_url = matches[0].group(1), matches[0].group(2)
+
+        # Filtering non-provider tools
+        name_lower = main_name.lower()
+        if any(term in name_lower for term in ["theintrodb", "discord", "telegram", "wyzie subs", "libre subs", "npm package", "warning", "raw", "pdf", "png", "webp", "jpg"]):
             continue
-            
-        # Skip internal/meta links by URL
-        if any(f in url for f in ["rentry.co", "t.me/", "discord.", "npmjs.", "sub.wyzie", "theintrodb", "github.com", "vidsrc.domains"]): 
+        if any(f in main_url for f in ["rentry.co", "t.me/", "discord.", "npmjs.", "sub.wyzie", "theintrodb", "github.com", "vidsrc.domains"]):
             continue
+
+        # If name is "Docs" or a number like "2", "3", it's a sub-link of the previous provider
+        if current_provider and (main_name.lower() in ["docs", "api", "status"] or main_name.isdigit()):
+            current_provider['sub_links'].append({"name": main_name, "url": main_url})
+            # Also add other links on the same line as sub-links
+            for m in matches[1:]:
+                current_provider['sub_links'].append({"name": m.group(1), "url": m.group(2)})
+        else:
+            # New provider
+            current_provider = {
+                "name": main_name,
+                "homepage": main_url,
+                "sub_links": []
+            }
+            # Any additional links on this same line (e.g. ", [2]", ", [Docs]")
+            for m in matches[1:]:
+                current_provider['sub_links'].append({"name": m.group(1), "url": m.group(2)})
+            providers.append(current_provider)
             
-        if url in seen_urls: continue
-        seen_urls.add(url)
-        providers.append({"name": name, "homepage": url})
     return providers
 
 def load_env():
@@ -299,7 +319,6 @@ def main():
         batch_slice = providers[i : i + BATCH_SIZE]
         print(f"  [Batch {i//BATCH_SIZE + 1}] Processing {len(batch_slice)} providers...")
         
-        # Step 1: Fetch all pages in batch via Jina — skip any that fail
         batch_data = []
         for p in batch_slice:
             print(f"    Fetching {p['name']}...", end=" ", flush=True)
@@ -309,14 +328,21 @@ def main():
                 continue
             print("OK", flush=True)
             
-            # Smart Sub-page fetching: look for documentation, API, or player integration pages
+            # Smart Sub-page fetching
             docs_links = []
 
-            # 1. Regex search for markdown links with interesting keywords
+            # Include sub-links from Rentry (like [2], [Docs])
+            for sl in p.get('sub_links', []):
+                docs_links.append({"url": sl['url'], "reason": f"Rentry sub-link: {sl['name']}"})
+
+            # Regex search for interesting links on the homepage
             keywords = ['api', 'doc', 'dev', 'embed', 'player', 'integrate', 'use']
             for m in re.finditer(r'\[([^\]]+)\]\(([^)]+)\)', text):
                 link_text, link_url = m.group(1).lower(), m.group(2)
                 
+                # Exclude media and non-doc formats
+                if any(ext in link_url.lower() for ext in ['.png', '.jpg', '.jpeg', '.webp', '.pdf', '.mp4', '.zip']):
+                    continue
                 if link_url.startswith('#') or 'javascript:' in link_url:
                     continue
 
@@ -333,38 +359,52 @@ def main():
                         if base_link != base_home and base_link not in [l['url'] for l in docs_links]:
                             docs_links.append({"url": base_link, "reason": f"keyword match: {link_text}"})
 
-            # 2. Heuristic: If we haven't found a solid docs link and the homepage is sparse, try common paths
+            # Heuristic: try common paths
             common_paths = ['/docs', '/api', '/api-docs', '/documentation', '/embed', '/player']
             if len(docs_links) < 1:
                 for path in common_paths:
                     docs_links.append({"url": p['homepage'].rstrip('/') + path, "reason": "common path heuristic"})
 
-            # Limit to top 2 potential doc pages to avoid infinite crawling
-            for doc_info in docs_links[:2]:
+            # Fetch top 2 doc pages
+            fetched_count = 0
+            for doc_info in docs_links:
+                if fetched_count >= 2: break
+
+                # Final check to avoid obviously non-doc URLs (like example movie URLs)
+                if any(term in doc_info['url'].lower() for term in ['?imdb=', 'movie_id=', 'tt', TMDB_MOVIE_ID]):
+                    if "docs" not in doc_info['url'].lower() and "api" not in doc_info['url'].lower():
+                        continue
+
                 print(f"      -> Potential docs at {doc_info['url']} ({doc_info['reason']}), fetching...", end=" ", flush=True)
                 time.sleep(JINA_DELAY)
                 docs_text = jina_get(doc_info['url'])
-                if docs_text and len(docs_text.strip()) > 200:
+
+                # Check if it's a real page (basic length and content check)
+                if docs_text and len(docs_text.strip()) > 300:
+                    # Ignore if the "docs" page just returns an image description (Jina sometimes does this for media URLs)
+                    if docs_text.strip().startswith('![Image') and len(docs_text.strip()) < 1000:
+                        print("Skipped (Looks like an image)", flush=True)
+                        continue
+
                     text += f"\n\n--- SUBPAGE ({doc_info['url']}) ---\n" + docs_text
                     print("OK", flush=True)
-                    # If we found something that looks like real docs, we might not need more
+                    fetched_count += 1
                     if "embed" in docs_text.lower() or "tmdb" in docs_text.lower():
                         break
                 else:
                     print("Skipped/Failed", flush=True)
             
             batch_data.append({**p, "text": text})
-            time.sleep(JINA_DELAY)  # Use reduced delay with rotating proxies
+            time.sleep(JINA_DELAY)
 
         if not batch_data:
-            print(f"    All providers in this batch skipped.", flush=True)
             continue
 
-        # Step 2: AI extraction for the whole batch
+        # Step 2: AI extraction
         print(f"    Processing batch with AI...", flush=True)
         ai_results = extract_batch_with_ai(batch_data)
 
-        # Step 3: Only keep providers the AI successfully verified AND that have at least one embed URL
+        # Step 3: results
         for p in batch_data:
             match = next((r for r in ai_results if r.get('name') == p['name']), None)
             if not match:
@@ -399,7 +439,6 @@ def main():
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
 
-    # Save state after successful run
     with open(STATE_FILE, "w") as f:
         json.dump({"hash": current_hash, "updated_at": datetime.now(timezone.utc).isoformat()}, f, indent=2)
 
