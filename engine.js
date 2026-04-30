@@ -370,8 +370,8 @@ function openInLab(idx) {
     <div class="pi-url" style="margin-bottom:4px;">${p.homepage}</div>
     <div class="pi-embed"><strong>Movie:</strong> ${p.embed || 'None'}</div>
     ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
-    ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:6px;border-radius:6px;"><strong>Customization:</strong><br>${esc(p.customizations)}</div>` : ''}
-    ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:8px;border-radius:6px;border:1px solid rgba(0,255,204,0.1);"><strong>LLM Provider Documentation:</strong><br><div style="white-space:pre-wrap;margin-top:4px;color:var(--text)">${esc(p.llm_profile)}</div></div>` : ''}
+    ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:6px;border-radius:6px;"><strong>Customization:</strong><br>${mdToHtml(p.customizations)}</div>` : ''}
+    ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:8px;border-radius:6px;border:1px solid rgba(0,255,204,0.1);"><strong>LLM Provider Documentation:</strong><br><div style="margin-top:4px;color:var(--text)">${mdToHtml(p.llm_profile)}</div></div>` : ''}
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
     
     <div style="margin-top:15px; background: rgba(255,255,255,0.02); padding:10px; border-radius:8px; border: 1px solid var(--border);">
@@ -460,28 +460,41 @@ function labMark(status) {
   renderProviderList();
   log(`Verified: ${name} (${status.toUpperCase()})`, status === 'pass' ? 'success' : 'error');
 
-  // 3. Find next untested provider
+  // 3. Find next provider
+  autoAdvance(idx);
+}
+
+function labSkip() {
+  const idx = state.activeIdx;
+  if (idx === null) {
+    log('No provider active to skip', 'warn');
+    return;
+  }
+  log(`Skipped: ${state.providers[idx].name}`, 'info');
+  autoAdvance(idx);
+}
+
+function autoAdvance(idx) {
   const shouldAdvance = document.getElementById('autoAdvance')?.checked !== false; // Default to true
 
   if (shouldAdvance) {
-    // Look forward first
     let nextIdx = -1;
-    if (idx !== null) {
-      nextIdx = state.providers.findIndex((p, i) => i > idx && !state.results[p.name]);
-    }
     
-    // If not found forward, search from the beginning for any untested
-    if (nextIdx === -1) {
+    // If we have an active index, always try to go to the very NEXT one first (even if tested)
+    if (idx !== null && idx < state.providers.length - 1) {
+      nextIdx = idx + 1;
+    }
+    // Fallback: search for first untested
+    else {
       nextIdx = state.providers.findIndex(p => !state.results[p.name]);
     }
 
-    if (nextIdx !== -1) {
-      log(`Next Untested: ${state.providers[nextIdx].name}`, 'info');
-      // Delay slightly to ensure previous render finishes
+    if (nextIdx !== -1 && nextIdx < state.providers.length) {
+      log(`Advancing to: ${state.providers[nextIdx].name}`, 'info');
       setTimeout(() => openInLab(nextIdx), 50);
     } else {
-      log('🎉 ALL PROVIDERS TESTED!', 'success');
-      alert('Congratulations! All providers in the database have been tested.');
+      log('Reached end of list', 'success');
+      alert('You have reached the end of the provider list.');
       labClear();
     }
   } else {
@@ -510,6 +523,30 @@ function exportResults() {
 function esc(s) {
   return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
+
+function mdToHtml(text) {
+  if (!text) return '';
+  let html = esc(text);
+
+  // Bold
+  html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+
+  // H3
+  html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
+
+  // Lists
+  html = html.replace(/^\- (.*$)/gm, '<li>$1</li>');
+  html = html.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
+
+  // Newlines
+  html = html.replace(/\n/g, '<br>');
+
+  // Fix double <ul> from previous step if any (naive but works for our LLM output)
+  html = html.replace(/<\/ul><br><ul>/g, '<br>');
+
+  return html;
+}
+
 function fmtDate(iso) {
   try { return new Date(iso).toLocaleString(); } catch(e) { return iso; }
 }
@@ -521,11 +558,11 @@ function openDocsModal(name) {
   const p = state.providers.find(prov => prov.name === name);
   if (!p) return;
   document.getElementById('docsModalTitle').textContent = `${p.name} Docs`;
-  document.getElementById('docsModalContent').textContent = p.llm_profile || 'No LLM profile generated for this provider.';
+  document.getElementById('docsModalContent').innerHTML = mdToHtml(p.llm_profile) || 'No LLM profile generated for this provider.';
   
   const customEl = document.getElementById('docsModalCustom');
   if (customEl) {
-    customEl.textContent = p.customizations || 'No customization options documented.';
+    customEl.innerHTML = mdToHtml(p.customizations) || 'No customization options documented.';
   }
   
   document.getElementById('docsModal').classList.add('active');
