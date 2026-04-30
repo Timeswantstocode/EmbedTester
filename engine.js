@@ -239,6 +239,11 @@ function openInLab(idx) {
     ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:6px;border-radius:6px;"><strong>Customization:</strong><br>${esc(p.customizations)}</div>` : ''}
     ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:8px;border-radius:6px;border:1px solid rgba(0,255,204,0.1);"><strong>LLM Provider Documentation:</strong><br><div style="white-space:pre-wrap;margin-top:4px;color:var(--text)">${esc(p.llm_profile)}</div></div>` : ''}
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
+    
+    <div style="margin-top:15px;">
+      <label style="font-size:11px; color:var(--muted); margin-bottom:5px; display:block;">Personal Notes / Reason for Pass/Fail:</label>
+      <textarea id="labNotes" style="width:100%; height:60px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:8px; font-size:12px; font-family:inherit; resize:none;" placeholder="e.g. Too many ads, slow loading, perfect quality..."></textarea>
+    </div>
   `;
 
   labLoad();
@@ -273,16 +278,17 @@ function labClear() {
 }
 
 function labMark(status) {
-  const url  = document.getElementById('labUrl').value.trim();
-  const idx  = state.activeIdx;
-  const name = idx !== null ? state.providers[idx]?.name : url;
+  const url   = document.getElementById('labUrl').value.trim();
+  const notes = document.getElementById('labNotes').value.trim();
+  const idx   = state.activeIdx;
+  const name  = idx !== null ? state.providers[idx]?.name : url;
 
   if (!name) { log('No provider active', 'warn'); return; }
 
   state.results[name] = {
     status,
     embed: url,
-    notes: status === 'pass' ? 'Video played' : 'No playback / error',
+    notes: notes || (status === 'pass' ? 'Video played' : 'Failed test'),
     time:  new Date().toLocaleTimeString(),
   };
 
