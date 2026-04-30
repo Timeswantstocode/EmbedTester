@@ -179,32 +179,41 @@ def main():
         batch_slice = providers[i : i + BATCH_SIZE]
         print(f"  [Batch {i//BATCH_SIZE + 1}] Processing {len(batch_slice)} providers...")
         
-        # Step 1: Fetch all pages in batch via Jina
+        # Step 1: Fetch all pages in batch via Jina — skip any that fail
         batch_data = []
         for p in batch_slice:
             print(f"    Fetching {p['name']}...")
             text = jina_get(p['homepage'])
-            batch_data.append({**p, "text": text or "NO CONTENT FOUND"})
+            if not text:
+                print(f"      - {p['name']}: Skipped (Jina failed)")
+                continue
+            batch_data.append({**p, "text": text})
             time.sleep(JINA_DELAY)
+
+        if not batch_data:
+            print(f"    All providers in this batch skipped.")
+            continue
 
         # Step 2: AI extraction for the whole batch
         ai_results = extract_batch_with_ai(batch_data)
-        
-        # Step 3: Merge and fallback
+
+        # Step 3: Only keep providers the AI successfully verified
         for p in batch_data:
             match = next((r for r in ai_results if r.get('name') == p['name']), None)
+            if not match:
+                print(f"      - {p['name']}: Skipped (AI failed)")
+                continue
             res = {
                 "name": p['name'],
                 "homepage": p['homepage'],
-                "embed": match.get('movie_embed') if match else "",
-                "tv_embed": match.get('tv_embed') if match else "",
-                "customizations": match.get('customizations') if match else "",
-                "llm_profile": match.get('llm_profile') if match else "",
-                "source": "ai_gemma_batch" if match else "fallback"
+                "embed": match.get('movie_embed', ''),
+                "tv_embed": match.get('tv_embed', ''),
+                "customizations": match.get('customizations', ''),
+                "llm_profile": match.get('llm_profile', ''),
+                "source": "ai_gemma_batch"
             }
-            if not res["embed"]: res["embed"] = fallback_url(p['homepage'])
             final_results.append(res)
-            print(f"      - {p['name']}: {'Success' if match else 'Fallback'}")
+            print(f"      - {p['name']}: Success")
 
     output = {
         "generated": datetime.now(timezone.utc).isoformat(),
