@@ -242,6 +242,9 @@ header p { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
 
+.btn-accent.is-loading { pointer-events: none; opacity: 0.8; }
+.btn-accent.is-loading span { display: inline-block; animation: spin 1s linear infinite; }
+
 @media (max-width: 900px) {
   .explorer-layout, .lab-layout { grid-template-columns: 1fr; }
 }

@@ -83,6 +83,7 @@ async function startLoad() {
 
   showOverlay('Loading Sources', 'Fetching sources.json from repo...');
   setStatus('Loading...', 'active');
+  document.getElementById('loadBtn').classList.add('is-loading');
 
   try {
     // Cache-bust so GitHub Pages always serves fresh file
@@ -124,6 +125,7 @@ async function startLoad() {
     setStatus('Error', 'fail');
   } finally {
     hideOverlay();
+    document.getElementById('loadBtn').classList.remove('is-loading');
   }
 }
 
