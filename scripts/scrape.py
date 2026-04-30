@@ -44,16 +44,13 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
         
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
     
-    # thinkingConfig is nested INSIDE generationConfig (FAM pattern)
+    # No thinkingConfig — including thoughts causes them to be concatenated into
+    # the JSON output string, breaking json.loads() every time.
     payload = {
         "contents": [{ "role": "user", "parts": [{"text": prompt}] }],
         "generationConfig": {
             "temperature": 0.1,
-            "responseMimeType": "application/json",
-            "thinkingConfig": {
-                "includeThoughts": True,
-                "thinkingLevel": "HIGH"
-            }
+            "responseMimeType": "application/json"
         }
     }
     
@@ -61,13 +58,14 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
     req = urllib.request.Request(url, data=data, headers={'Content-Type': 'application/json'})
     
     try:
-        with urllib.request.urlopen(req, timeout=120) as response:
+        with urllib.request.urlopen(req, timeout=180) as response:
             result = json.loads(response.read().decode('utf-8'))
-            # Extract text from response
+            # Extract text — skip any thought parts (they have a 'thought' key)
+            # to prevent thinking text from being concatenated with the JSON.
             parts = result.get('candidates', [{}])[0].get('content', {}).get('parts', [])
             text = ""
             for part in parts:
-                if 'text' in part:
+                if 'text' in part and not part.get('thought', False):
                     text += part['text']
             
             # Strip markdown code fences if present

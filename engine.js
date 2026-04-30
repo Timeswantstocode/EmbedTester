@@ -155,10 +155,13 @@ async function startLoad() {
     };
 
     // Merge — preserve existing results, update provider metadata
+    // Ignore providers that fell back to default patterns due to Jina/AI failures
     const existing = {};
     for (const p of state.providers) existing[p.name] = p;
 
-    state.providers = data.providers.map(p => ({
+    state.providers = data.providers
+      .filter(p => p.source !== 'fallback')
+      .map(p => ({
       ...p,
       status: state.results[p.name]?.status || existing[p.name]?.status || 'idle',
     }));
