@@ -371,17 +371,18 @@ function openInLab(idx) {
     <div class="pi-embed"><strong>Movie:</strong> ${p.embed || 'None'}</div>
     ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
     ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:10px;border-radius:8px;border:1px solid rgba(255,204,0,0.15);"><strong>Customization:</strong><br><div class="markdown-body" style="margin-top:5px;font-size:11px;">${mdToHtml(p.customizations)}</div></div>` : ''}
-    ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:10px;border-radius:8px;border:1px solid rgba(0,255,204,0.15);"><strong>LLM Provider Documentation:</strong><br><div class="markdown-body" style="margin-top:5px;font-size:11px;color:var(--text)">${mdToHtml(p.llm_profile)}</div></div>` : ''}
+    ${p.llm_profile ? `
+      <div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:10px;border-radius:8px;border:1px solid rgba(0,255,204,0.15);position:relative;">
+        <strong>LLM Provider Documentation:</strong>
+        <button class="btn-xs" style="position:absolute; top:8px; right:8px; background:var(--accent-dim); border-color:var(--accent); color:var(--accent);" onclick="copyActiveDocs(this)">📋 Copy</button>
+        <div id="activeDocText" class="markdown-body" style="margin-top:5px;font-size:11px;color:var(--text)">${mdToHtml(p.llm_profile)}</div>
+      </div>` : ''}
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
-    
-    <div style="margin-top:15px; background: rgba(255,255,255,0.02); padding:10px; border-radius:8px; border: 1px solid var(--border);">
-      <label style="font-size:11px; color:var(--muted); margin-bottom:5px; display:block;">Optional Notes (Reason for Pass/Fail):</label>
-      <textarea id="labNotes" style="width:100%; height:60px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:8px; font-size:12px; font-family:inherit; resize:none;" placeholder="Enter specific feedback or reasons here..."></textarea>
-    </div>
   `;
 
   labLoad();
   document.getElementById('labResultBtns').style.display = 'flex';
+  document.getElementById('labNotesContainer').style.display = 'block';
 }
 
 function labLoad() {
@@ -409,12 +410,13 @@ function labLoad() {
   // Pre-fill notes if they exist for this provider/URL
   const name = state.activeIdx !== null ? state.providers[state.activeIdx].name : url;
   const existing = state.results[name];
-  if (existing && existing.notes) {
-    const notesBox = document.getElementById('labNotes');
-    if (notesBox) notesBox.value = existing.notes;
+  const notesBox = document.getElementById('labNotes');
+  if (notesBox) {
+    notesBox.value = (existing && existing.notes) ? existing.notes : '';
   }
 
   log(`Loaded: ${url} (Sandbox: ${useSandbox ? 'ON' : 'OFF'})`, 'info');
+  adjustNotesHeight();
 }
 
 function labClear() {
@@ -428,6 +430,7 @@ function labClear() {
       <div>Enter an embed URL and click Load</div>
     </div>`;
   document.getElementById('labResultBtns').style.display = 'none';
+  document.getElementById('labNotesContainer').style.display = 'none';
   state.activeIdx = null;
   document.getElementById('activeTestInfo').innerHTML = '<div class="muted-text">No provider selected</div>';
 }
@@ -457,7 +460,7 @@ function labMark(status) {
 
   // 2. Persist
   saveState();
-  renderProviderList();
+  renderAll();
   log(`Verified: ${name} (${status.toUpperCase()})`, status === 'pass' ? 'success' : 'error');
 
   // 3. Find next provider
@@ -538,11 +541,14 @@ function mdToHtml(text) {
   html = html.replace(/^\- (.*$)/gm, '<li>$1</li>');
   html = html.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
 
-  // Newlines
+  // Newlines — handle multiple newlines and list boundaries
+  html = html.replace(/\n\n+/g, '\n');
   html = html.replace(/\n/g, '<br>');
 
-  // Fix double <ul> from previous step if any (naive but works for our LLM output)
-  html = html.replace(/<\/ul><br><ul>/g, '<br>');
+  // Fix list gaps
+  html = html.replace(/<\/ul><br><ul>/g, '');
+  html = html.replace(/<\/ul><br>/g, '</ul>');
+  html = html.replace(/<br><ul>/g, '<ul>');
 
   return html;
 }
@@ -595,4 +601,45 @@ document.getElementById('saveNotesBtn')?.addEventListener('click', () => {
 });
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
-window.onload = loadState;
+window.onload = () => {
+  loadState();
+
+  // Attach auto-resize listener to lab notes
+  const notesArea = document.getElementById('labNotes');
+  if (notesArea) {
+    notesArea.addEventListener('input', adjustNotesHeight);
+  }
+};
+
+function adjustNotesHeight() {
+  const el = document.getElementById('labNotes');
+  if (!el) return;
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+
+// ─── COPY UTILS ──────────────────────────────────────────────────────────────
+async function copyToClipboard(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const original = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('pass');
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('pass');
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy', err);
+  }
+}
+
+function copyDocsFromModal(btn) {
+  const content = document.getElementById('docsModalContent').innerText;
+  copyToClipboard(content, btn || event.currentTarget);
+}
+
+function copyActiveDocs(btn) {
+  const content = document.getElementById('activeDocText').innerText;
+  copyToClipboard(content, btn || event.currentTarget);
+}
