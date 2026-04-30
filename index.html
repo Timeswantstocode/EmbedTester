@@ -167,10 +167,13 @@
     <div class="modal-content">
       <div class="modal-header">
         <h3 id="docsModalTitle">Provider Docs</h3>
-        <button class="btn-ghost btn-close" onclick="closeModal('docsModal')">✕</button>
+        <div style="display:flex; gap:8px;">
+          <button class="btn-xs" onclick="copyDocsFromModal(this)" title="Copy Documentation">📋 Copy</button>
+          <button class="btn-ghost btn-close" onclick="closeModal('docsModal')">✕</button>
+        </div>
       </div>
       <div class="modal-body">
-        <div class="markdown-body" id="docsModalContent"></div>
+        <div class="markdown-body" style="position:relative;" id="docsModalContent"></div>
         <div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
           <h4 style="color: var(--yellow); margin-bottom: 8px; font-size: 14px;">Customization Summary</h4>
           <div class="code-block" id="docsModalCustom" style="color: var(--text); background: rgba(255,204,0,0.05); border: 1px solid rgba(255,204,0,0.1);"></div>

@@ -207,7 +207,7 @@ Providers to analyse:
         
         if res == "RETRYABLE_BUSY":
             # Exponential backoff for 503 errors
-            wait = (2 ** attempt) * 10
+            wait = (2 ** attempt) * 5
             print(f"    -> Model busy (503). Waiting {wait}s...", flush=True)
             time.sleep(wait)
             continue
@@ -216,7 +216,7 @@ Providers to analyse:
             print(f"    -> Success on attempt {attempt + 1}!", flush=True)
             return res["results"]
 
-        wait = 10 if attempt < 2 else 20
+        wait = 5 if attempt < 2 else 10
         print(f"    -> Waiting {wait}s before retry...", flush=True)
         time.sleep(wait)
     print("    -> All attempts exhausted.", flush=True)

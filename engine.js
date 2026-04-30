@@ -371,7 +371,12 @@ function openInLab(idx) {
     <div class="pi-embed"><strong>Movie:</strong> ${p.embed || 'None'}</div>
     ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
     ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:10px;border-radius:8px;border:1px solid rgba(255,204,0,0.15);"><strong>Customization:</strong><br><div class="markdown-body" style="margin-top:5px;font-size:11px;">${mdToHtml(p.customizations)}</div></div>` : ''}
-    ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:10px;border-radius:8px;border:1px solid rgba(0,255,204,0.15);"><strong>LLM Provider Documentation:</strong><br><div class="markdown-body" style="margin-top:5px;font-size:11px;color:var(--text)">${mdToHtml(p.llm_profile)}</div></div>` : ''}
+    ${p.llm_profile ? `
+      <div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:10px;border-radius:8px;border:1px solid rgba(0,255,204,0.15);position:relative;">
+        <strong>LLM Provider Documentation:</strong>
+        <button class="btn-xs" style="position:absolute; top:8px; right:8px; background:var(--accent-dim); border-color:var(--accent); color:var(--accent);" onclick="copyActiveDocs(this)">📋 Copy</button>
+        <div id="activeDocText" class="markdown-body" style="margin-top:5px;font-size:11px;color:var(--text)">${mdToHtml(p.llm_profile)}</div>
+      </div>` : ''}
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
   `;
 
@@ -536,11 +541,14 @@ function mdToHtml(text) {
   html = html.replace(/^\- (.*$)/gm, '<li>$1</li>');
   html = html.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
 
-  // Newlines
+  // Newlines — handle multiple newlines and list boundaries
+  html = html.replace(/\n\n+/g, '\n');
   html = html.replace(/\n/g, '<br>');
 
-  // Fix double <ul> from previous step if any (naive but works for our LLM output)
-  html = html.replace(/<\/ul><br><ul>/g, '<br>');
+  // Fix list gaps
+  html = html.replace(/<\/ul><br><ul>/g, '');
+  html = html.replace(/<\/ul><br>/g, '</ul>');
+  html = html.replace(/<br><ul>/g, '<ul>');
 
   return html;
 }
@@ -608,4 +616,30 @@ function adjustNotesHeight() {
   if (!el) return;
   el.style.height = 'auto';
   el.style.height = el.scrollHeight + 'px';
+}
+
+// ─── COPY UTILS ──────────────────────────────────────────────────────────────
+async function copyToClipboard(text, btn) {
+  try {
+    await navigator.clipboard.writeText(text);
+    const original = btn.textContent;
+    btn.textContent = '✅ Copied!';
+    btn.classList.add('pass');
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('pass');
+    }, 2000);
+  } catch (err) {
+    console.error('Failed to copy', err);
+  }
+}
+
+function copyDocsFromModal(btn) {
+  const content = document.getElementById('docsModalContent').innerText;
+  copyToClipboard(content, btn || event.currentTarget);
+}
+
+function copyActiveDocs(btn) {
+  const content = document.getElementById('activeDocText').innerText;
+  copyToClipboard(content, btn || event.currentTarget);
 }
