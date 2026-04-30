@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-30T11:04:51.122441+00:00",
+  "generated": "2026-04-30T13:09:56.929018+00:00",
   "tmdb_id": "129",
   "count": 65,
   "providers": [
@@ -232,46 +232,46 @@
       "name": "Peachify",
       "homepage": "https://peachify.top/",
       "embed": "https://peachify.top/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "tv_embed": null,
+      "customizations": null,
+      "llm_profile": "No API documentation or embed patterns were provided in the source text.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "PrimeSRC",
       "homepage": "https://primesrc.me/",
-      "embed": "https://primesrc.me/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "embed": "https://primesrc.me/embed/movie?tmdb=129",
+      "tv_embed": "https://primesrc.me/embed/tv?tmdb=1399&season=1&episode=1",
+      "customizations": "Supports 'fallback' (boolean), 'serverOrder' (comma-separated list), 'whitelistServers' (comma-separated list), 'blacklistServers' (comma-separated list), and 'startAt' (seconds).",
+      "llm_profile": "PrimeSRC uses a query-parameter based embed system. Movies are served via the '/embed/movie' endpoint and TV shows via '/embed/tv'. It supports multiple ID systems including TMDB, IMDb, and TVMaze. TV embeds strictly require 'season' and 'episode' parameters. The API allows for granular control over the video source through server management parameters.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "QuickWatch",
       "homepage": "https://www.quickwatch.co/api",
       "embed": "https://www.quickwatch.co/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "tv_embed": null,
+      "customizations": null,
+      "llm_profile": "The provided source returned a 403 Forbidden error from Cloudflare; no embed patterns available.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "Rive API",
       "homepage": "https://rivestream.org/embed/docs",
       "embed": "https://rivestream.org/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "tv_embed": null,
+      "customizations": null,
+      "llm_profile": "No API documentation or embed patterns were provided in the source text.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "sudo-flix",
       "homepage": "https://docs.undi.rest/",
       "embed": "https://docs.undi.rest/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "tv_embed": null,
+      "customizations": null,
+      "llm_profile": "The provided text contains general application features and marketing information but does not specify embed URL structures or API endpoints.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "SmashyStream API",
@@ -411,47 +411,47 @@
     {
       "name": "VidNest",
       "homepage": "https://vidnest.fun/",
-      "embed": "https://vidnest.fun/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "embed": "https://vidnest.fun/movie/129",
+      "tv_embed": "https://vidnest.fun/tv/1399/1/1",
+      "customizations": "Server selection, playback start position (startAt/progress), and extensive UI element toggles (hide/show).",
+      "llm_profile": "VidNest uses a path-based URL structure for movies and TV shows. Movies require a TMDB ID. TV shows require TMDB ID, Season, and Episode in the path. It supports a 'server' query parameter with specific allowed values (lamda, primesrc, sigma, alfa, beta, gama, catflix, hexa, delta). It also supports 'startAt' or 'progress' for seeking. A wide array of UI elements can be hidden using query parameters (e.g., servericon, topcaption, timeslider, pip, etc.) by setting them to 'hide', 'false', '0', 'off', or an empty value.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "VidPlays",
       "homepage": "https://vidplays.fun/",
       "embed": "https://vidplays.fun/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "tv_embed": "https://vidplays.fun/embed/tv/1399/1/1",
+      "customizations": "None explicitly documented in the provided text beyond standard iframe embedding.",
+      "llm_profile": "VidPlays utilizes an '/embed/' subpath for its API. The structure is /embed/movie/{tmdbId} and /embed/tv/{tmdbId}/{season}/{episode}. It is designed as a high-performance, ad-free infrastructure with no API key required for integration.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "VidPlus",
       "homepage": "https://vidplus.to/",
-      "embed": "https://vidplus.to/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "embed": "https://player.vidplus.to/embed/movie/129",
+      "tv_embed": "https://player.vidplus.to/embed/tv/1399/1/1",
+      "customizations": "Extensive theme colors, playback automation, UI element visibility, and subtitle appearance.",
+      "llm_profile": "VidPlus uses a dedicated player subdomain (player.vidplus.to). The URL structure is /embed/movie/{tmdbId} and /embed/tv/{tmdbId}/{season}/{episode}. It offers deep customization via query parameters including color themes (primarycolor, secondarycolor, iconcolor), playback behavior (autoplay, autoNext), UI visibility (poster, title, chromecast, episodelist, servericon, pip), and subtitle styling (fontcolor, fontsize, opacity). It also supports a 'server' parameter.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "vidrock",
       "homepage": "https://vidrock.net/",
-      "embed": "https://vidrock.net/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "embed": "https://vidrock.net/movie/129",
+      "tv_embed": "https://vidrock.net/tv/1399/1/1",
+      "customizations": "Supports both TMDB and IMDB identifiers.",
+      "llm_profile": "vidrock provides a straightforward path-based API. It supports both TMDB and IMDB IDs for movies and TV shows. The structure is /movie/{id} or /tv/{id}/{season}/{episode}. It is marketed as an enterprise-ready, high-quality streaming API.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "VidRush",
       "homepage": "https://vidrush.net/",
-      "embed": "https://vidrush.net/embed/movie/129",
-      "tv_embed": "",
-      "customizations": "",
-      "llm_profile": "",
-      "source": "fallback"
+      "embed": "https://player.vidrush.net/embed/movie/129",
+      "tv_embed": "https://player.vidrush.net/embed/tv/1399/1/1",
+      "customizations": "Comprehensive UI toggles, color themes, subtitle typography, and anime dubbing preferences.",
+      "llm_profile": "VidRush (Cinezo) uses a player subdomain (player.vidrush.net) with the structure /embed/movie/{tmdbId} and /embed/tv/{tmdbId}/{season}/{episode}. It features a highly granular query parameter system for UI customization (autoplay, poster, chromecast, servericon, setting, pip), color themes (primarycolor, secondarycolor, iconcolor), and subtitle customization (font, fontcolor, fontsize, opacity). It also supports anime via AniList ID with a 'dub' parameter.",
+      "source": "ai_gemma_batch"
     },
     {
       "name": "VidSrc.cc",
