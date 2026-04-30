@@ -323,6 +323,14 @@ function labLoad() {
   const url = document.getElementById('labUrl').value.trim();
   if (!url) return;
 
+  // Auto-detect provider if URL matches one in our list
+  const foundIdx = state.providers.findIndex(p => p.embed === url || p.tv_embed === url);
+  if (foundIdx !== -1 && state.activeIdx !== foundIdx) {
+    log(`Auto-detected provider: ${state.providers[foundIdx].name}`, 'info');
+    openInLab(foundIdx); // This will update the UI and re-call labLoad, which is fine
+    return;
+  }
+
   const useSandbox = document.getElementById('useSandbox').checked;
   const box = document.getElementById('labSandbox');
   
@@ -333,11 +341,22 @@ function labLoad() {
     referrerpolicy="no-referrer"
   ></iframe>`;
 
+  // Pre-fill notes if they exist for this provider/URL
+  const name = state.activeIdx !== null ? state.providers[state.activeIdx].name : url;
+  const existing = state.results[name];
+  if (existing && existing.notes) {
+    const notesBox = document.getElementById('labNotes');
+    if (notesBox) notesBox.value = existing.notes;
+  }
+
   log(`Loaded: ${url} (Sandbox: ${useSandbox ? 'ON' : 'OFF'})`, 'info');
 }
 
 function labClear() {
   document.getElementById('labUrl').value = '';
+  const notesBox = document.getElementById('labNotes');
+  if (notesBox) notesBox.value = '';
+  
   document.getElementById('labSandbox').innerHTML = `
     <div class="embed-placeholder">
       <div class="ep-icon">📺</div>
