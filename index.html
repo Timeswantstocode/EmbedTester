@@ -44,7 +44,7 @@
   <nav class="tabs">
     <button class="tab active" data-tab="explorer" onclick="switchTab('explorer')">Source Explorer</button>
     <button class="tab" data-tab="lab" onclick="switchTab('lab')">Test Lab</button>
-    <button class="tab" data-tab="results" onclick="switchTab('results')">Results</button>
+    <button class="tab" data-tab="results" onclick="switchTab('results')">Notes & Verifications</button>
   </nav>
 
   <!-- EXPLORER TAB -->
@@ -94,6 +94,10 @@
           <div class="panel-body">
             <div class="url-row">
               <input type="text" id="labUrl" placeholder="Paste embed URL here (movie only)" onclick="this.select()">
+              <div style="display:flex; align-items:center; gap:8px; margin:0 10px;">
+                <input type="checkbox" id="useSandbox" checked style="width:auto; height:auto; cursor:pointer;">
+                <label for="useSandbox" style="font-size:12px; color:var(--muted); cursor:pointer; white-space:nowrap;">Sandbox</label>
+              </div>
               <button class="btn btn-accent" onclick="labLoad()">Load</button>
               <button class="btn btn-ghost" onclick="labClear()">✕</button>
             </div>
@@ -104,8 +108,8 @@
               </div>
             </div>
             <div id="labResultBtns" class="result-btns" style="display:none">
-              <button class="btn btn-pass" onclick="labMark('pass')">✔ Mark PASS</button>
-              <button class="btn btn-fail" onclick="labMark('fail')">✖ Mark FAIL</button>
+              <button class="btn btn-pass" onclick="labMark('pass')">✔ Pass (Working)</button>
+              <button class="btn btn-fail" onclick="labMark('fail')">✖ Fail (Broken)</button>
             </div>
           </div>
         </div>
@@ -132,12 +136,20 @@
     </div>
   </div>
 
-  <!-- RESULTS TAB -->
+  <!-- RESULTS TAB (Verification Log) -->
   <div id="tab-results" class="tab-content">
     <div class="panel">
-      <div class="panel-head"><span>Verification Results</span><span class="chip" id="resultsChip">0 completed</span></div>
-      <div id="resultsTable" class="results-list">
-        <div class="empty-state">No results yet. Test providers in the Lab tab.</div>
+      <div class="panel-head"><span>Personal Verification Log</span><span class="chip" id="resultsChip">0 completed</span></div>
+      <div class="panel-body" style="padding:0">
+        <div class="results-header">
+          <span>Status</span>
+          <span>Provider</span>
+          <span>Verification Notes / Feedback</span>
+          <span>Timestamp</span>
+        </div>
+        <div id="resultsTable" class="results-list">
+          <div class="empty-state">No notes yet. Record your verification notes in the Manual Lab.</div>
+        </div>
       </div>
     </div>
   </div>

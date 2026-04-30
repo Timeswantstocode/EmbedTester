@@ -156,12 +156,20 @@ function renderProviderList() {
       ? '<span class="chip green">✓ pattern</span>'
       : p.source === 'scraped'
       ? '<span class="chip accent">⟳ scraped</span>'
+      : p.source === 'ai_gemma_batch'
+      ? '<span class="chip accent">✧ AI Batch</span>'
       : '<span class="chip yellow">~ fallback</span>';
+
+    const statusLabel = status === 'pass' 
+      ? '<span class="chip green" style="margin-left:8px">WORKING</span>' 
+      : status === 'fail' 
+      ? '<span class="chip red" style="margin-left:8px">BROKEN</span>' 
+      : '';
 
     div.innerHTML = `
       <div class="pi-dot ${status}"></div>
       <div class="pi-info">
-        <div class="pi-name">${esc(p.name)} ${sourceBadge}</div>
+        <div class="pi-name">${esc(p.name)} ${sourceBadge} ${statusLabel}</div>
         <div class="pi-url">${p.homepage}</div>
         <div class="pi-embed"><strong>Movie:</strong> ${p.embed || '<span style="color:var(--muted)">None</span>'}</div>
         ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
@@ -212,12 +220,9 @@ function renderResults() {
     const div = document.createElement('div');
     div.className = 'result-row ' + r.status;
     div.innerHTML = `
-      <span class="rr-badge ${r.status}">${r.status.toUpperCase()}</span>
-      <div>
-        <div class="rr-name">${esc(name)}</div>
-        <div class="rr-url">${r.embed || ''}</div>
-      </div>
-      <div class="rr-url">${r.notes || ''}</div>
+      <div class="rr-status"><span class="rr-badge ${r.status}">${r.status === 'pass' ? '✔' : '✖'}</span></div>
+      <div class="rr-provider">${esc(name)}</div>
+      <div class="rr-notes">${esc(r.notes) || '<span class="muted-text">No notes</span>'}</div>
       <div class="rr-time">${r.time || ''}</div>
     `;
     list.appendChild(div);
@@ -254,15 +259,17 @@ function labLoad() {
   const url = document.getElementById('labUrl').value.trim();
   if (!url) return;
 
+  const useSandbox = document.getElementById('useSandbox').checked;
   const box = document.getElementById('labSandbox');
+  
   box.innerHTML = `<iframe
     src="${esc(url)}"
-    sandbox="${FAM_SANDBOX}"
+    ${useSandbox ? `sandbox="${FAM_SANDBOX}"` : ''}
     allow="${FAM_ALLOW}"
     referrerpolicy="no-referrer"
   ></iframe>`;
 
-  log('Loaded: ' + url, 'info');
+  log(`Loaded: ${url} (Sandbox: ${useSandbox ? 'ON' : 'OFF'})`, 'info');
 }
 
 function labClear() {
