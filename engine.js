@@ -231,11 +231,12 @@ function renderProviderList() {
       <div class="pi-dot ${status}"></div>
       <div class="pi-info">
         <div class="pi-name"><a href="#" onclick="window.open('${esc(p.homepage)}','_blank'); return false;" style="color:var(--text);text-decoration:none;">${esc(p.name)}</a> ${sourceBadge} ${statusLabel}</div>
-        <div class="pi-url">${p.homepage}</div>
-        <div class="pi-embed"><strong>Movie:</strong> ${p.embed || '<span style="color:var(--muted)">None</span>'}</div>
-        ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
-        ${p.customizations ? `<div class="pi-embed" style="color:var(--yellow)"><strong>Custom:</strong> ${esc(p.customizations)}</div>` : ''}
-        ${p.llm_profile ? `<div class="pi-embed" style="color:var(--accent); font-size:10px; margin-top:4px;"><strong>LLM Profile Available</strong></div>` : ''}
+        <div style="margin-top: 4px; display: flex; gap: 4px; flex-wrap: wrap;">
+          ${p.embed ? '<span class="chip" style="font-size: 9px; padding: 2px 6px; background: rgba(255,255,255,0.05);">🎬 Movie</span>' : ''}
+          ${p.tv_embed ? '<span class="chip" style="font-size: 9px; padding: 2px 6px; background: rgba(255,255,255,0.05);">📺 TV/Anime</span>' : ''}
+          ${p.customizations ? '<span class="chip" style="font-size: 9px; padding: 2px 6px; background: rgba(255,204,0,0.1); color: var(--yellow);">⚙️ Custom</span>' : ''}
+          ${p.llm_profile ? '<span class="chip" style="font-size: 9px; padding: 2px 6px; background: rgba(0,255,204,0.1); color: var(--accent);">📄 Docs</span>' : ''}
+        </div>
       </div>
       <div class="pi-actions">
         <button class="btn-xs" style="background:rgba(255,255,255,0.05);" onclick="openDocsModal('${esc(p.name)}')">Docs</button>
@@ -521,6 +522,12 @@ function openDocsModal(name) {
   if (!p) return;
   document.getElementById('docsModalTitle').textContent = `${p.name} Docs`;
   document.getElementById('docsModalContent').textContent = p.llm_profile || 'No LLM profile generated for this provider.';
+  
+  const customEl = document.getElementById('docsModalCustom');
+  if (customEl) {
+    customEl.textContent = p.customizations || 'No customization options documented.';
+  }
+  
   document.getElementById('docsModal').classList.add('active');
 }
 

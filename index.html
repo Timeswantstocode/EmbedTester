@@ -166,7 +166,11 @@
         <button class="btn-ghost btn-close" onclick="closeModal('docsModal')">✕</button>
       </div>
       <div class="modal-body">
-        <div class="code-block" id="docsModalContent" style="white-space: pre-wrap;"></div>
+        <div class="code-block" id="docsModalContent" style="white-space: pre-wrap; font-family: var(--mono); font-size: 13px;"></div>
+        <div style="margin-top: 15px; border-top: 1px solid var(--border); padding-top: 15px;">
+          <h4 style="color: var(--yellow); margin-bottom: 8px; font-size: 14px;">Customization Summary</h4>
+          <div class="code-block" id="docsModalCustom" style="color: var(--text); background: rgba(255,204,0,0.05); border: 1px solid rgba(255,204,0,0.1);"></div>
+        </div>
       </div>
     </div>
   </div>

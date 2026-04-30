@@ -161,17 +161,19 @@ CRITICAL RULES:
 1. Return ONLY a raw JSON object. No markdown. No explanation. No commentary outside the JSON.
 2. The JSON must have a single top-level key: "results" (an array, one entry per provider).
 3. For movie_embed: construct the full URL using TMDB ID "{TMDB_MOVIE_ID}".
-4. For tv_embed: construct the full URL using TMDB ID "{TMDB_TV_ID}", season "1", episode "1".
+4. For tv_embed: construct the full URL using TMDB ID "{TMDB_TV_ID}", season "1", episode "1". If it's an Anime site, use tv_embed for the anime URL pattern.
 5. If the site uses IMDB IDs instead of TMDB, note it in llm_profile and still produce the URL with the TMDB constant.
-6. If a URL pattern cannot be determined from the content, set movie_embed and tv_embed to empty strings.
+6. If a URL pattern cannot be determined from the content (e.g., if the page is just an error, a security update guide, or completely unrelated to streaming APIs), set BOTH movie_embed and tv_embed to empty strings.
 
-For each provider's "llm_profile", write a structured technical reference covering ALL of the following that appear in the content:
-  A. EMBED URL STRUCTURE — exact path pattern for movies and TV (e.g. /embed/movie/{{tmdb_id}} or /embed/tv/{{tmdb_id}}/{{season}}/{{episode}})
-  B. SUPPORTED ID TYPES — TMDB, IMDB, TVMaze, AniList, etc.
-  C. QUERY PARAMETERS — list every documented parameter with its type, allowed values, and what it controls
-  D. PLAYER EVENTS / POSTMESSAGE API — any window.postMessage events the player emits or listens to (e.g. timeupdate, ended, ready)
-  E. INTEGRATION NOTES — any iframe sandbox requirements, CORS notes, or authentication requirements
-  F. CUSTOMIZATION SUMMARY — a one-line summary of the most useful toggles
+For each provider's "llm_profile", write a beautifully formatted, clean markdown document. Use newlines and bullet points for readability. It MUST NOT look like a giant wall of text.
+Include exactly these sections:
+- Base URL: (e.g. https://www.2embed.cc)
+- Embed Example: (e.g. https://www.2embed.cc/embed/129)
+- URL Structure: (exact path pattern for movies and TV)
+- Supported IDs: (TMDB, IMDB, TVMaze, AniList, etc.)
+- Query Parameters: (list every documented parameter)
+- Player Events / PostMessage API: (any documented events)
+- Integration Notes: (iframe sandbox, CORS, auth)
 
 JSON schema (output exactly this shape):
 {{
@@ -180,7 +182,7 @@ JSON schema (output exactly this shape):
       "name": "Provider Name (must match the NAME field exactly)",
       "movie_embed": "https://...",
       "tv_embed": "https://...",
-      "llm_profile": "Structured technical reference as described above.",
+      "llm_profile": "Formatted markdown text as requested above. Ensure proper newlines (\\n).",
       "customizations": "One-line summary of key customization options."
     }}
   ]
@@ -293,17 +295,25 @@ def main():
         print(f"    Processing batch with AI...", flush=True)
         ai_results = extract_batch_with_ai(batch_data)
 
-        # Step 3: Only keep providers the AI successfully verified
+        # Step 3: Only keep providers the AI successfully verified AND that have at least one embed URL
         for p in batch_data:
             match = next((r for r in ai_results if r.get('name') == p['name']), None)
             if not match:
-                print(f"      - {p['name']}: Skipped (AI failed)", flush=True)
+                print(f"      - {p['name']}: Skipped (AI failed to parse)", flush=True)
                 continue
+                
+            movie_embed = match.get('movie_embed', '').strip()
+            tv_embed = match.get('tv_embed', '').strip()
+            
+            if not movie_embed and not tv_embed:
+                print(f"      - {p['name']}: Skipped (No embed URLs found in docs)", flush=True)
+                continue
+
             res = {
                 "name": p['name'],
                 "homepage": p['homepage'],
-                "embed": match.get('movie_embed', ''),
-                "tv_embed": match.get('tv_embed', ''),
+                "embed": movie_embed,
+                "tv_embed": tv_embed,
                 "customizations": match.get('customizations', ''),
                 "llm_profile": match.get('llm_profile', ''),
                 "source": "ai_gemma_batch"
