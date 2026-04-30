@@ -171,7 +171,7 @@ function renderProviderList() {
     div.innerHTML = `
       <div class="pi-dot ${status}"></div>
       <div class="pi-info">
-        <div class="pi-name">${esc(p.name)} ${sourceBadge} ${statusLabel}</div>
+        <div class="pi-name"><a href="#" onclick="window.open('${esc(p.homepage)}','_blank'); return false;" style="color:var(--text);text-decoration:none;">${esc(p.name)}</a> ${sourceBadge} ${statusLabel}</div>
         <div class="pi-url">${p.homepage}</div>
         <div class="pi-embed"><strong>Movie:</strong> ${p.embed || '<span style="color:var(--muted)">None</span>'}</div>
         ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
@@ -179,7 +179,6 @@ function renderProviderList() {
         ${p.llm_profile ? `<div class="pi-embed" style="color:var(--accent); font-size:10px; margin-top:4px;"><strong>LLM Profile Available</strong></div>` : ''}
       </div>
       <div class="pi-actions">
-        <button class="btn-xs" onclick="window.open('${esc(p.homepage)}','_blank')">Visit</button>
         ${p.embed ? `<button class="btn-xs test" onclick="openInLab(${idx})">Test</button>` : ''}
       </div>
     `;
@@ -221,10 +220,15 @@ function renderResults() {
   entries.forEach(([name, r]) => {
     const div = document.createElement('div');
     div.className = 'result-row ' + r.status;
+    // Find provider index
+    const pIdx = state.providers.findIndex(prov => prov.name === name);
+    
     div.innerHTML = `
       <div class="rr-status"><span class="rr-badge ${r.status}">${r.status === 'pass' ? '✔' : '✖'}</span></div>
-      <div class="rr-provider">${esc(name)}</div>
-      <div class="rr-notes">${esc(r.notes) || '<span class="muted-text">No notes</span>'}</div>
+      <div class="rr-provider" style="display:flex; align-items:center; gap:10px;">
+        <button class="btn-xs" style="background:rgba(255,255,255,0.05); border:1px solid var(--border);" onclick="openDocsModal('${esc(name)}')">${esc(name)}</button>
+        <button class="btn-xs" style="background:var(--accent-dim); color:var(--accent); border:1px solid var(--accent);" onclick="openNotesModal('${esc(name)}')">View Notes</button>
+      </div>
       <div class="rr-time">${r.time || ''}</div>
     `;
     list.appendChild(div);
@@ -247,9 +251,9 @@ function openInLab(idx) {
     ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:8px;border-radius:6px;border:1px solid rgba(0,255,204,0.1);"><strong>LLM Provider Documentation:</strong><br><div style="white-space:pre-wrap;margin-top:4px;color:var(--text)">${esc(p.llm_profile)}</div></div>` : ''}
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
     
-    <div style="margin-top:15px;">
-      <label style="font-size:11px; color:var(--muted); margin-bottom:5px; display:block;">Personal Notes / Reason for Pass/Fail:</label>
-      <textarea id="labNotes" style="width:100%; height:60px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:8px; color:var(--text); padding:8px; font-size:12px; font-family:inherit; resize:none;" placeholder="e.g. Too many ads, slow loading, perfect quality..."></textarea>
+    <div style="margin-top:15px; background: rgba(255,255,255,0.02); padding:10px; border-radius:8px; border: 1px solid var(--border);">
+      <label style="font-size:11px; color:var(--muted); margin-bottom:5px; display:block;">Optional Notes (Reason for Pass/Fail):</label>
+      <textarea id="labNotes" style="width:100%; height:60px; background:rgba(255,255,255,0.05); border:1px solid var(--border); border-radius:6px; color:var(--text); padding:8px; font-size:12px; font-family:inherit; resize:none;" placeholder="Enter specific feedback or reasons here..."></textarea>
     </div>
   `;
 
@@ -340,6 +344,43 @@ function esc(s) {
 function fmtDate(iso) {
   try { return new Date(iso).toLocaleString(); } catch(e) { return iso; }
 }
+
+// ─── MODALS ──────────────────────────────────────────────────────────────────
+let activeModalProvider = null;
+
+function openDocsModal(name) {
+  const p = state.providers.find(prov => prov.name === name);
+  if (!p) return;
+  document.getElementById('docsModalTitle').textContent = `${p.name} Docs`;
+  document.getElementById('docsModalContent').textContent = p.llm_profile || 'No LLM profile generated for this provider.';
+  document.getElementById('docsModal').classList.add('active');
+}
+
+function openNotesModal(name) {
+  activeModalProvider = name;
+  const r = state.results[name];
+  document.getElementById('notesModalTitle').textContent = `Notes for ${name}`;
+  document.getElementById('notesModalInput').value = r ? (r.notes || '') : '';
+  document.getElementById('notesModal').classList.add('active');
+}
+
+function closeModal(id) {
+  document.getElementById(id).classList.remove('active');
+  if (id === 'notesModal') activeModalProvider = null;
+}
+
+document.getElementById('saveNotesBtn')?.addEventListener('click', () => {
+  if (!activeModalProvider) return;
+  const newNotes = document.getElementById('notesModalInput').value;
+  if (!state.results[activeModalProvider]) {
+    state.results[activeModalProvider] = { status: 'idle', embed: '', notes: newNotes, time: new Date().toLocaleTimeString() };
+  } else {
+    state.results[activeModalProvider].notes = newNotes;
+  }
+  saveState();
+  closeModal('notesModal');
+  log(`Updated notes for ${activeModalProvider}`, 'success');
+});
 
 // ─── INIT ────────────────────────────────────────────────────────────────────
 window.onload = loadState;

@@ -108,8 +108,8 @@
               </div>
             </div>
             <div id="labResultBtns" class="result-btns" style="display:none">
-              <button class="btn btn-pass" onclick="labMark('pass')">✔ Pass (Working)</button>
-              <button class="btn btn-fail" onclick="labMark('fail')">✖ Fail (Broken)</button>
+              <button class="btn btn-pass" onclick="labMark('pass')">✔ Mark PASS</button>
+              <button class="btn btn-fail" onclick="labMark('fail')">✖ Mark FAIL</button>
             </div>
           </div>
         </div>
@@ -141,15 +141,35 @@
     <div class="panel">
       <div class="panel-head"><span>Personal Verification Log</span><span class="chip" id="resultsChip">0 completed</span></div>
       <div class="panel-body" style="padding:0">
-        <div class="results-header">
-          <span>Status</span>
-          <span>Provider</span>
-          <span>Verification Notes / Feedback</span>
-          <span>Timestamp</span>
-        </div>
         <div id="resultsTable" class="results-list">
           <div class="empty-state">No notes yet. Record your verification notes in the Manual Lab.</div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALS -->
+  <div id="docsModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="docsModalTitle">Provider Docs</h3>
+        <button class="btn-ghost btn-close" onclick="closeModal('docsModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="code-block" id="docsModalContent" style="white-space: pre-wrap;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="notesModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="notesModalTitle">Provider Notes</h3>
+        <button class="btn-ghost btn-close" onclick="closeModal('notesModal')">✕</button>
+      </div>
+      <div class="modal-body">
+        <textarea id="notesModalInput" class="notes-textarea" placeholder="Enter notes here..."></textarea>
+        <button class="btn btn-accent mt" id="saveNotesBtn">Save Notes</button>
       </div>
     </div>
   </div>
