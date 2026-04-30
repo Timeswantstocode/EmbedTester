@@ -178,8 +178,18 @@ def parse_rentry(text: str) -> list[dict]:
         providers.append({"name": name, "homepage": url})
     return providers
 
+def load_env():
+    """Simple .env loader for local dev without external dependencies."""
+    if os.path.exists(".env"):
+        with open(".env", "r") as f:
+            for line in f:
+                if "=" in line and not line.startswith("#"):
+                    key, value = line.strip().split("=", 1)
+                    os.environ[key] = value
+
 def main():
     print("=== FAM Source Verifier — AI Batch Scraper ===")
+    load_env()
     if not os.environ.get("GEMINI_API_KEY"):
         print("ERROR: GEMINI_API_KEY not found.")
         return

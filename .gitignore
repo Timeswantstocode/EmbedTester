@@ -1,0 +1,7 @@
+.env
+__pycache__/
+*.pyc
+sources.json
+famsv_state_v2
+node_modules/
+.DS_Store
