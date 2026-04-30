@@ -46,6 +46,10 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
         "generationConfig": {
             "temperature": 0.1,
             "responseMimeType": "application/json"
+        },
+        "thinkingConfig": {
+            "includeThoughts": True,
+            "thinkingLevel": "MEDIUM"
         }
     }
     
@@ -76,7 +80,10 @@ Extract the Movie and TV embed URL templates for EACH provider.
 RULES:
 1. Movie Embed: Replace TMDB ID placeholder with "{TMDB_MOVIE_ID}".
 2. TV Embed: Replace TMDB ID with "{TMDB_TV_ID}", Season with "1", Episode with "1".
-3. Customizations: If the docs mention theme/color/config params, write clear LLM-friendly instructions.
+3. LLM Profile: Create a highly detailed "Provider Profile" designed for other LLMs to read. It should describe:
+   - The URL structure for movies and TV.
+   - All supported parameters (e.g., color, theme, autoplay).
+   - Any specific constraints or features (e.g., "Supports TMDB only", "Ad-free", "Requires referer").
 4. Return a JSON object with a "results" array.
 
 Expected JSON schema:
@@ -86,7 +93,8 @@ Expected JSON schema:
       "name": "Provider Name",
       "movie_embed": "https://...",
       "tv_embed": "https://...",
-      "customizations": "..."
+      "llm_profile": "Detailed LLM-friendly documentation here...",
+      "customizations": "Brief summary of toggles..."
     }}
   ]
 }}
@@ -158,6 +166,7 @@ def main():
                 "embed": match.get('movie_embed') if match else "",
                 "tv_embed": match.get('tv_embed') if match else "",
                 "customizations": match.get('customizations') if match else "",
+                "llm_profile": match.get('llm_profile') if match else "",
                 "source": "ai_gemma_batch" if match else "fallback"
             }
             if not res["embed"]: res["embed"] = fallback_url(p['homepage'])

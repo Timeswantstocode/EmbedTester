@@ -166,6 +166,7 @@ function renderProviderList() {
         <div class="pi-embed"><strong>Movie:</strong> ${p.embed || '<span style="color:var(--muted)">None</span>'}</div>
         ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
         ${p.customizations ? `<div class="pi-embed" style="color:var(--yellow)"><strong>Custom:</strong> ${esc(p.customizations)}</div>` : ''}
+        ${p.llm_profile ? `<div class="pi-embed" style="color:var(--accent); font-size:10px; margin-top:4px;"><strong>LLM Profile Available</strong></div>` : ''}
       </div>
       <div class="pi-actions">
         <button class="btn-xs" onclick="window.open('${esc(p.homepage)}','_blank')">Visit</button>
@@ -236,6 +237,7 @@ function openInLab(idx) {
     <div class="pi-embed"><strong>Movie:</strong> ${p.embed || 'None'}</div>
     ${p.tv_embed ? `<div class="pi-embed"><strong>TV:</strong> ${p.tv_embed}</div>` : ''}
     ${p.customizations ? `<div style="margin-top:8px;font-size:10px;color:var(--yellow);background:rgba(255,204,0,0.1);padding:6px;border-radius:6px;"><strong>Customization:</strong><br>${esc(p.customizations)}</div>` : ''}
+    ${p.llm_profile ? `<div style="margin-top:8px;font-size:10px;color:var(--accent);background:rgba(0,255,204,0.05);padding:8px;border-radius:6px;border:1px solid rgba(0,255,204,0.1);"><strong>LLM Provider Documentation:</strong><br><div style="white-space:pre-wrap;margin-top:4px;color:var(--text)">${esc(p.llm_profile)}</div></div>` : ''}
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
   `;
 
@@ -301,11 +303,11 @@ function labMark(status) {
 
 // ─── EXPORT ──────────────────────────────────────────────────────────────────
 function exportResults() {
-  const rows = [['Provider', 'Homepage', 'Movie Embed', 'TV Embed', 'Customizations', 'Source', 'Status', 'Notes', 'Time']];
+  const rows = [['Provider', 'Homepage', 'Movie Embed', 'TV Embed', 'Customizations', 'LLM Profile', 'Source', 'Status', 'Notes', 'Time']];
 
   for (const p of state.providers) {
     const r = state.results[p.name] || {};
-    rows.push([p.name, p.homepage, p.embed, p.tv_embed, p.customizations, p.source, r.status || 'untested', r.notes || '', r.time || '']);
+    rows.push([p.name, p.homepage, p.embed, p.tv_embed, p.customizations, p.llm_profile, p.source, r.status || 'untested', r.notes || '', r.time || '']);
   }
 
   const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
