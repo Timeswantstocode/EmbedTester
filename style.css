@@ -192,22 +192,56 @@ header p { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
 .muted-text { font-size: 12px; color: var(--muted); }
 
 /* Verification Log Table */
-.results-list { display: flex; flex-direction: column; }
+.results-list { display: flex; flex-direction: column; gap: 15px; padding: 20px; }
 
 .result-row {
-  display: grid;
-  grid-template-columns: 80px 1fr 100px;
+  display: flex;
   align-items: center;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--border);
-  transition: background 0.2s;
+  justify-content: space-between;
+  padding: 18px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.result-row:hover { background: rgba(255,255,255,0.02); }
+.result-row.pass { border-color: var(--green); background: rgba(0,232,122,0.05); }
+.result-row.fail { border-color: var(--red); background: rgba(255,51,85,0.05); }
+.result-row.idle { border-color: var(--muted); background: rgba(255,255,255,0.02); }
 
-.rr-status { display: flex; align-items: center; }
-.rr-provider { font-weight: 600; font-size: 13px; color: var(--text); display: flex; gap: 8px; }
-.rr-time { font-size: 10px; color: var(--muted); text-align: right; font-family: var(--mono); }
+.rr-provider-group { display: flex; align-items: center; gap: 15px; flex: 1; }
+.rr-provider-btn { 
+  font-size: 18px; 
+  font-weight: 800; 
+  padding: 10px 20px; 
+  border-radius: 8px; 
+  border: none; 
+  cursor: pointer; 
+  transition: all 0.2s;
+  background: var(--panel);
+  color: var(--text);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+.result-row.pass .rr-provider-btn { background: var(--green); color: #000; }
+.result-row.fail .rr-provider-btn { background: var(--red); color: #fff; }
+.result-row.idle .rr-provider-btn { background: var(--muted); color: var(--text); }
+
+.rr-provider-btn:hover { transform: translateY(-2px); opacity: 0.9; }
+
+.rr-notes-btn {
+  background: var(--accent-dim);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.rr-notes-btn:hover { background: var(--accent); color: #000; }
+
+.rr-time { font-size: 11px; color: var(--muted); font-family: var(--mono); }
 
 .rr-badge {
   display: inline-block;

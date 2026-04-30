@@ -35,6 +35,43 @@ function clearSaved() {
   log('Cleared saved data', 'warn');
 }
 
+// ─── BACKUP / RESTORE ────────────────────────────────────────────────────────
+function downloadState() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `fam-backup-${Date.now()}.json`;
+  a.click();
+  log('Backup downloaded', 'success');
+}
+
+function triggerUpload() {
+  document.getElementById('uploadInput').click();
+}
+
+function handleUpload(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (evt) => {
+    try {
+      const imported = JSON.parse(evt.target.result);
+      if (!imported.results) throw new Error('Invalid backup file');
+      
+      state = imported;
+      saveState();
+      renderAll();
+      log('State restored from backup', 'success');
+      setStatus('Restored', 'pass');
+    } catch (err) {
+      log('Upload failed: ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
 // ─── LOGGING ─────────────────────────────────────────────────────────────────
 function log(msg, type = 'info') {
   const box = document.getElementById('logBox');
@@ -220,14 +257,11 @@ function renderResults() {
   entries.forEach(([name, r]) => {
     const div = document.createElement('div');
     div.className = 'result-row ' + r.status;
-    // Find provider index
-    const pIdx = state.providers.findIndex(prov => prov.name === name);
     
     div.innerHTML = `
-      <div class="rr-status"><span class="rr-badge ${r.status}">${r.status === 'pass' ? '✔' : '✖'}</span></div>
-      <div class="rr-provider" style="display:flex; align-items:center; gap:10px;">
-        <button class="btn-xs" style="background:rgba(255,255,255,0.05); border:1px solid var(--border);" onclick="openDocsModal('${esc(name)}')">${esc(name)}</button>
-        <button class="btn-xs" style="background:var(--accent-dim); color:var(--accent); border:1px solid var(--accent);" onclick="openNotesModal('${esc(name)}')">View Notes</button>
+      <div class="rr-provider-group">
+        <button class="rr-provider-btn" onclick="openDocsModal('${esc(name)}')">${esc(name)}</button>
+        <button class="rr-notes-btn" onclick="openNotesModal('${esc(name)}')">View Notes</button>
       </div>
       <div class="rr-time">${r.time || ''}</div>
     `;

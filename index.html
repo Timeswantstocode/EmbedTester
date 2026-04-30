@@ -72,7 +72,10 @@
             <div class="stat"><div class="stat-label">Pass</div><div class="stat-val green" id="stPass">0</div></div>
             <div class="stat"><div class="stat-label">Fail</div><div class="stat-val red" id="stFail">0</div></div>
           </div>
-          <button class="btn btn-ghost full-w mt" onclick="exportResults()">↓ Export Results</button>
+          <button class="btn btn-ghost full-w mt" onclick="exportResults()">↓ Export CSV Results</button>
+          <button class="btn btn-ghost full-w mt-sm" onclick="downloadState()">↓ Download JSON Backup</button>
+          <button class="btn btn-ghost full-w mt-sm" onclick="triggerUpload()">↑ Restore JSON Backup</button>
+          <input type="file" id="uploadInput" style="display:none" onchange="handleUpload(event)">
           <button class="btn btn-ghost full-w mt-sm" onclick="clearSaved()">✕ Clear Saved Data</button>
         </div>
 
