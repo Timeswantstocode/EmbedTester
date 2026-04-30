@@ -224,8 +224,16 @@ def parse_rentry(text: str) -> list[dict]:
     pattern = re.compile(r'\[([^\]]+)\]\((https?://[^\)]+)\)')
     for m in pattern.finditer(text):
         name, url = m.group(1).strip(), m.group(2).strip()
-        # Skip internal/meta links
-        if any(f in url for f in ["rentry.co", "t.me/", "discord.", "npmjs.", "sub.wyzie", "theintrodb", "github.com", "vidsrc.domains"]): continue
+        
+        # Skip specific non-provider tools by name
+        name_lower = name.lower()
+        if any(term in name_lower for term in ["theintrodb", "discord", "telegram", "wyzie subs", "libre subs", "npm package"]):
+            continue
+            
+        # Skip internal/meta links by URL
+        if any(f in url for f in ["rentry.co", "t.me/", "discord.", "npmjs.", "sub.wyzie", "theintrodb", "github.com", "vidsrc.domains"]): 
+            continue
+            
         if url in seen_urls: continue
         seen_urls.add(url)
         providers.append({"name": name, "homepage": url})
