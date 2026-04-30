@@ -10,6 +10,7 @@ import time
 import os
 import urllib.request
 import urllib.error
+import random
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
@@ -21,28 +22,61 @@ OUTPUT_FILE = "sources.json"
 JINA_DELAY = 3.2
 BATCH_SIZE = 5  # Gemma 256K can easily handle 5+ full provider pages
 
-# Jina Reader headers — use their documented format, no custom User-Agent
+# Jina Reader headers — default to Markdown (no X-Return-Format: text)
 # Rate limit: 20 req/min on free tier = minimum 3s between requests
 JINA_HEADERS = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-    "X-Return-Format": "text",
-    "Accept": "text/plain",
 }
+
+# Global proxy list loaded from Webshare API
+WEBSHARE_PROXIES = []
+
+def load_webshare_proxies():
+    """Fetch proxy list from Webshare API if a key is provided."""
+    api_key = os.environ.get("WEBSHARE_API_KEY")
+    if not api_key:
+        return
+    
+    print("Fetching proxy list from Webshare API...", flush=True)
+    req = urllib.request.Request("https://proxy.webshare.io/api/v2/proxy/list/?page=1&page_size=100")
+    req.add_header("Authorization", f"Token {api_key}")
+    try:
+        with urllib.request.urlopen(req, timeout=15) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            for p in data.get("results", []):
+                # Format: http://username:password@ip:port
+                proxy_url = f"http://{p['username']}:{p['password']}@{p['proxy_address']}:{p['port']}"
+                WEBSHARE_PROXIES.append(proxy_url)
+        print(f"Loaded {len(WEBSHARE_PROXIES)} proxies from Webshare.", flush=True)
+    except Exception as e:
+        print(f"Error loading Webshare proxies: {e}", flush=True)
 
 def jina_get(url: str) -> str:
     try:
         req = urllib.request.Request(JINA_BASE + url, headers=JINA_HEADERS)
-        with urllib.request.urlopen(req, timeout=45) as response:
-            return response.read().decode('utf-8')
+        
+        # If we have proxies, pick a random one for this request
+        if WEBSHARE_PROXIES:
+            proxy_url = random.choice(WEBSHARE_PROXIES)
+            proxy_handler = urllib.request.ProxyHandler({
+                'http': proxy_url,
+                'https': proxy_url
+            })
+            opener = urllib.request.build_opener(proxy_handler)
+            response = opener.open(req, timeout=45)
+        else:
+            response = urllib.request.urlopen(req, timeout=45)
+            
+        return response.read().decode('utf-8')
     except Exception as e:
-        print(f"  [JINA ERROR] {url}: {e}")
+        print(f"  [JINA ERROR] {url}: {e}", flush=True)
         return ""
 
 def ask_gemma(prompt: str, model_name: str) -> dict | None:
     """Call Gemini API mirroring FAM's gemini.ts pattern exactly."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
-        print("  [Error] GEMINI_API_KEY not set.")
+        print("  [Error] GEMINI_API_KEY not set.", flush=True)
         return None
         
     url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
@@ -85,14 +119,14 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
         body = ""
         try: body = e.read().decode('utf-8')[:300]
         except: pass
-        print(f"  [Gemma Error {model_name}]: HTTP {e.code}")
-        if body: print(f"  [Detail]: {body}")
+        print(f"  [Gemma Error {model_name}]: HTTP {e.code}", flush=True)
+        if body: print(f"  [Detail]: {body}", flush=True)
         # 400 = bad request (fatal), 401/403 = auth (fatal) — mirror FAM's isFatalError()
         if e.code in (400, 401, 403):
             return "FATAL"
         return None
     except Exception as e:
-        print(f"  [Gemma Error {model_name}]: {e}")
+        print(f"  [Gemma Error {model_name}]: {e}", flush=True)
         return None
 
 def extract_batch_with_ai(batch: list[dict]) -> list[dict]:
@@ -144,21 +178,21 @@ Providers to analyse:
     models = ["gemini-3.1-flash-lite-preview", "gemma-4-31b-it"]
     for attempt in range(6):
         model = models[attempt % 2]
-        print(f"    -> Attempt {attempt + 1}/6 ({model})...")
+        print(f"    -> Attempt {attempt + 1}/6 ({model})...", flush=True)
         res = ask_gemma(prompt, model)
         
         # Fatal error means the request itself is bad — no point retrying same payload
         if res == "FATAL":
-            print(f"    -> Fatal error (400/401/403). Skipping remaining attempts.")
+            print(f"    -> Fatal error (400/401/403). Skipping remaining attempts.", flush=True)
             break
         
         if res and isinstance(res, dict) and "results" in res:
-            print(f"    -> Success on attempt {attempt + 1}!")
+            print(f"    -> Success on attempt {attempt + 1}!", flush=True)
             return res["results"]
         wait = 10 if attempt < 2 else 20
-        print(f"    -> Waiting {wait}s before retry...")
+        print(f"    -> Waiting {wait}s before retry...", flush=True)
         time.sleep(wait)
-    print("    -> All attempts exhausted. Using fallback.")
+    print("    -> All attempts exhausted. Using fallback.", flush=True)
     return []
 
 def fallback_url(homepage: str) -> str:
@@ -169,10 +203,12 @@ def fallback_url(homepage: str) -> str:
 def parse_rentry(text: str) -> list[dict]:
     providers = []
     seen_urls = set()
-    pattern = re.compile(r'\*\s+\[([^\]]+)\]\((https?://[^\)]+)\)')
+    # Flexible regex to catch [Name](URL) regardless of leading asterisks/bullets
+    pattern = re.compile(r'\[([^\]]+)\]\((https?://[^\)]+)\)')
     for m in pattern.finditer(text):
         name, url = m.group(1).strip(), m.group(2).strip()
-        if any(f in url for f in ["rentry.co", "t.me/", "discord.", "npmjs.", "sub.wyzie", "theintrodb"]): continue
+        # Skip internal/meta links
+        if any(f in url for f in ["rentry.co", "t.me/", "discord.", "npmjs.", "sub.wyzie", "theintrodb", "github.com", "vidsrc.domains"]): continue
         if url in seen_urls: continue
         seen_urls.add(url)
         providers.append({"name": name, "homepage": url})
@@ -188,18 +224,24 @@ def load_env():
                     os.environ[key] = value
 
 def main():
-    print("=== FAM Source Verifier — AI Batch Scraper ===")
+    print("=== FAM Source Verifier — AI Batch Scraper ===", flush=True)
     load_env()
+    load_webshare_proxies()
+    
     if not os.environ.get("GEMINI_API_KEY"):
-        print("ERROR: GEMINI_API_KEY not found.")
+        print("ERROR: GEMINI_API_KEY not found.", flush=True)
         return
 
+    print(f"Fetching providers from {RENTRY_URL}...", flush=True)
     rentry_text = jina_get(RENTRY_URL)
-    if not rentry_text: return
+    if not rentry_text:
+        print("ERROR: Failed to fetch Rentry text.", flush=True)
+        return
+    
     providers = parse_rentry(rentry_text)
-    print(f"Found {len(providers)} providers. Processing in batches of {BATCH_SIZE}...")
-    time.sleep(JINA_DELAY)  # Respect rate limit after fetching Rentry
-    print()
+    print(f"Found {len(providers)} providers. Processing in batches of {BATCH_SIZE}...", flush=True)
+    time.sleep(JINA_DELAY)
+    print(flush=True)
 
     final_results = []
     for i in range(0, len(providers), BATCH_SIZE):
@@ -209,26 +251,28 @@ def main():
         # Step 1: Fetch all pages in batch via Jina — skip any that fail
         batch_data = []
         for p in batch_slice:
-            print(f"    Fetching {p['name']}...")
+            print(f"    Fetching {p['name']}...", end=" ", flush=True)
             text = jina_get(p['homepage'])
             if not text:
-                print(f"      - {p['name']}: Skipped (Jina failed)")
+                print("Skipped (Jina failed)", flush=True)
                 continue
+            print("OK", flush=True)
             batch_data.append({**p, "text": text})
             time.sleep(JINA_DELAY)  # Stay under 20 req/min free tier limit
 
         if not batch_data:
-            print(f"    All providers in this batch skipped.")
+            print(f"    All providers in this batch skipped.", flush=True)
             continue
 
         # Step 2: AI extraction for the whole batch
+        print(f"    Processing batch with AI...", flush=True)
         ai_results = extract_batch_with_ai(batch_data)
 
         # Step 3: Only keep providers the AI successfully verified
         for p in batch_data:
             match = next((r for r in ai_results if r.get('name') == p['name']), None)
             if not match:
-                print(f"      - {p['name']}: Skipped (AI failed)")
+                print(f"      - {p['name']}: Skipped (AI failed)", flush=True)
                 continue
             res = {
                 "name": p['name'],
@@ -240,7 +284,7 @@ def main():
                 "source": "ai_gemma_batch"
             }
             final_results.append(res)
-            print(f"      - {p['name']}: Success")
+            print(f"      - {p['name']}: Success", flush=True)
 
     output = {
         "generated": datetime.now(timezone.utc).isoformat(),
@@ -250,7 +294,7 @@ def main():
     }
     with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
         json.dump(output, f, indent=2, ensure_ascii=False)
-    print(f"\nDone. Wrote {len(final_results)} providers to {OUTPUT_FILE}")
+    print(f"\nDone. Wrote {len(final_results)} providers to {OUTPUT_FILE}", flush=True)
 
 if __name__ == "__main__":
     main()
