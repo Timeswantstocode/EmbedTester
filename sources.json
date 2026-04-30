@@ -1,0 +1,397 @@
+{
+  "generated": "2026-04-30T09:16:24.521498+00:00",
+  "tmdb_id": "129",
+  "count": 65,
+  "providers": [
+    {
+      "name": "67movies",
+      "homepage": "https://67movies.nl/",
+      "embed": "https://67movies.nl/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "2embed",
+      "homepage": "https://www.2embed.cc/",
+      "embed": "https://www.2embed.cc/embed/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "2embed.stream",
+      "homepage": "https://2embed.stream/",
+      "embed": "https://www.2embed.stream/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "AeonWatch",
+      "homepage": "https://thisiscinema.pages.dev/",
+      "embed": "https://thisiscinema.pages.dev/embed/movie/129",
+      "source": "fallback"
+    },
+    {
+      "name": "AnimeAPI",
+      "homepage": "https://animeapi.skin/",
+      "embed": "https://animeapi.skin/embed/movie/129",
+      "source": "fallback"
+    },
+    {
+      "name": "AutoEmbed",
+      "homepage": "https://autoembed.cc/",
+      "embed": "https://autoembed.cc/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "bCine",
+      "homepage": "https://bcine.app/api-docs",
+      "embed": "https://bcine.app/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Cinetaro API",
+      "homepage": "https://api.cinetaro.buzz/",
+      "embed": "https://api.cinetaro.buzz/embed/movie/129",
+      "source": "fallback"
+    },
+    {
+      "name": "Cinemaos",
+      "homepage": "https://cinemaos.tech/embed",
+      "embed": "https://cinemaos.tech/player/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "CineSRC",
+      "homepage": "https://cinesrc.st/",
+      "embed": "https://cinesrc.st/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Cinezo API",
+      "homepage": "https://cinezo.live/",
+      "embed": "https://player.cinezo.live/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Embed RGShows",
+      "homepage": "https://www.vidsrc.wtf/",
+      "embed": "https://www.vidsrc.wtf/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Embed Icefy",
+      "homepage": "https://embed.icefy.top/",
+      "embed": "https://embed.icefy.top/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Embed.lc",
+      "homepage": "https://embed.lc/",
+      "embed": "https://embed.lc/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Filmku",
+      "homepage": "https://filmku.stream/",
+      "embed": "https://filmku.stream/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "FilmEx",
+      "homepage": "https://fmovies4u.com/",
+      "embed": "https://fmovies4u.com/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "GdrivePlayer",
+      "homepage": "https://api.gdriveplayer.us/",
+      "embed": "https://gdriveplayer.us/embed2.php?tmdb=129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "GoDrivePlayer",
+      "homepage": "https://godriveplayer.com/",
+      "embed": "https://godriveplayer.com/player.php?tmdb=129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "GoMo",
+      "homepage": "https://gomo.to/",
+      "embed": "https://gomo.to/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "KiraStreams API",
+      "homepage": "https://kirastreamsv2.vercel.app/player-api",
+      "embed": "https://kirastreamsv2.vercel.app/embed/movie/533535",
+      "source": "scraped"
+    },
+    {
+      "name": "Krakenflix API",
+      "homepage": "https://krakenflix.cx/apidocs",
+      "embed": "https://krakenflix.cx/embed/movie/129",
+      "source": "fallback"
+    },
+    {
+      "name": "Mapple Player",
+      "homepage": "https://mappletv.uk/",
+      "embed": "https://mappletv.uk/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "MoviesAPI",
+      "homepage": "https://moviesapi.club/",
+      "embed": "https://moviesapi.club/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "NontonGo",
+      "homepage": "https://nontongo.win/",
+      "embed": "https://nontongo.win/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Player4u",
+      "homepage": "https://player4u.xyz/",
+      "embed": "https://player4u.xyz/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Peachify",
+      "homepage": "https://peachify.top/",
+      "embed": "https://peachify.top/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "PrimeSRC",
+      "homepage": "https://primesrc.me/",
+      "embed": "https://primesrc.me/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "QuickWatch",
+      "homepage": "https://www.quickwatch.co/api",
+      "embed": "https://www.quickwatch.co/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Rive API",
+      "homepage": "https://rivestream.org/embed/docs",
+      "embed": "https://rivestream.org/embed/docs",
+      "source": "scraped"
+    },
+    {
+      "name": "sudo-flix",
+      "homepage": "https://docs.undi.rest/",
+      "embed": "https://docs.undi.rest/embed/movie/129",
+      "source": "fallback"
+    },
+    {
+      "name": "SmashyStream API",
+      "homepage": "https://embed.smashystream.com/",
+      "embed": "https://embed.smashystream.com/playere.php?tmdb=129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "SpenEmbed",
+      "homepage": "https://spencerdevs.xyz/",
+      "embed": "https://spencerdevs.xyz/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "SuperEmbed",
+      "homepage": "https://www.superembed.stream/",
+      "embed": "https://www.superembed.stream/embed?tmdb=129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "TryEmbed",
+      "homepage": "https://tryembed.us.cc/",
+      "embed": "https://tryembed.us.cc/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Vidora",
+      "homepage": "https://vidora.su/",
+      "embed": "https://vidora.su/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidAPI.ru",
+      "homepage": "https://vidapi.ru/",
+      "embed": "https://vidapi.ru/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidAPI",
+      "homepage": "https://vidapi.xyz/",
+      "embed": "https://vidapi.xyz/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidEasy",
+      "homepage": "https://www.videasy.net/",
+      "embed": "https://www.videasy.net/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidFast",
+      "homepage": "https://vidfast.pro/",
+      "embed": "https://vidfast.pro/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Vidify",
+      "homepage": "https://vidify.top/",
+      "embed": "https://vidify.top/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidFun",
+      "homepage": "https://vidfun.pro/",
+      "embed": "https://vidfun.pro/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidFlix",
+      "homepage": "https://vidflix.club/",
+      "embed": "https://vidflix.club/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Vidjoy",
+      "homepage": "https://vidjoy.pro/embed/doc",
+      "embed": "https://vidjoy.pro/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidKing",
+      "homepage": "https://www.vidking.net/",
+      "embed": "https://www.vidking.net/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidLink",
+      "homepage": "https://vidlink.pro/",
+      "embed": "https://vidlink.pro/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidNest",
+      "homepage": "https://vidnest.fun/",
+      "embed": "https://vidnest.fun/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidPlays",
+      "homepage": "https://vidplays.fun/",
+      "embed": "https://vidplays.fun/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidPlus",
+      "homepage": "https://vidplus.to/",
+      "embed": "https://vidplus.to/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "vidrock",
+      "homepage": "https://vidrock.net/",
+      "embed": "https://vidrock.net/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidRush",
+      "homepage": "https://vidrush.net/",
+      "embed": "https://vidrush.net/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSrc.cc",
+      "homepage": "https://vidsrc.cc/",
+      "embed": "https://vidsrc.cc/v2/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSrc.cx",
+      "homepage": "https://vidsrc.cx/",
+      "embed": "https://vidsrc.cx/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSrc.co",
+      "homepage": "https://vidsrc.co/",
+      "embed": "https://vidsrc.co/embed/movie?tmdb=129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSrc.me",
+      "homepage": "https://vidsrcme.ru/",
+      "embed": "https://vidsrcme.ru/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSrc.rip",
+      "homepage": "https://vidsrc.rip/",
+      "embed": "https://vidsrc.rip/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSrc.su",
+      "homepage": "https://vidsrc.su/",
+      "embed": "https://vidsrc.su/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSrc.to",
+      "homepage": "https://vidsrc.to/",
+      "embed": "https://vidsrc.to/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSrc.vip",
+      "homepage": "https://vidsrc.vip/",
+      "embed": "https://vidsrc.vip/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VixSrc",
+      "homepage": "https://vixsrc.to/",
+      "embed": "https://vixsrc.to/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidSync",
+      "homepage": "https://vidsync.xyz/",
+      "embed": "https://vidsync.xyz/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "VidUP",
+      "homepage": "https://vidup.to/",
+      "embed": "https://vidup.to/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Vidzee",
+      "homepage": "https://vidzee.wtf/",
+      "embed": "https://vidzee.wtf/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Vidzen",
+      "homepage": "https://vidzen.fun/",
+      "embed": "https://vidzen.fun/embed/movie/129",
+      "source": "known_pattern"
+    },
+    {
+      "name": "Vyla",
+      "homepage": "https://github.com/EndOverdosing/Vyla-Player-API",
+      "embed": "https://vyla-api.pages.dev/api/movie?id=27205",
+      "source": "scraped"
+    },
+    {
+      "name": "ZXCSTREAM",
+      "homepage": "https://www.zxcstream.xyz/",
+      "embed": "https://www.zxcstream.xyz/embed/movie/129",
+      "source": "known_pattern"
+    }
+  ]
+}

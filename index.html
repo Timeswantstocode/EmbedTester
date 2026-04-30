@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FAM Source Verifier</title>
+<link rel="stylesheet" href="style.css">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- Loading Overlay -->
+<div id="overlay">
+  <div class="overlay-box">
+    <div class="spinner"></div>
+    <div class="overlay-title" id="overlayTitle">Loading...</div>
+    <div class="overlay-sub" id="overlaySub">Please wait</div>
+    <div class="prog-bar"><div class="prog-fill" id="progFill"></div></div>
+    <div class="prog-text" id="progText"></div>
+  </div>
+</div>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header>
+    <div class="brand">
+      <div class="logo">▶</div>
+      <div>
+        <h1>FAM Source Verifier</h1>
+        <p>GitHub Pages · FAM Sandbox · TMDB Embed Tester</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="status-pill" id="statusPill">● Idle</div>
+      <button class="btn btn-accent" id="loadBtn" onclick="startLoad()">⟳ Load Sources</button>
+    </div>
+  </header>
+
+  <!-- Meta banner -->
+  <div id="metaBanner" style="display:none; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:10px 18px; font-size:11px; color:var(--muted); font-family:var(--mono); margin-bottom:16px;"></div>
+
+  <!-- TABS -->
+  <nav class="tabs">
+    <button class="tab active" data-tab="explorer" onclick="switchTab('explorer')">Source Explorer</button>
+    <button class="tab" data-tab="lab" onclick="switchTab('lab')">Test Lab</button>
+    <button class="tab" data-tab="results" onclick="switchTab('results')">Results</button>
+  </nav>
+
+  <!-- EXPLORER TAB -->
+  <div id="tab-explorer" class="tab-content active">
+    <div class="explorer-layout">
+
+      <div class="main-col">
+        <div class="panel">
+          <div class="panel-head">
+            <span>Provider Registry</span>
+            <span id="providerCount" class="chip">0 found</span>
+          </div>
+          <div id="providerList" class="provider-list">
+            <div class="empty-state">Click <strong>Load Sources</strong> to discover all providers from rentry.co</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="side-col">
+        <div class="panel">
+          <div class="panel-head"><span>Stats</span></div>
+          <div class="stats-grid">
+            <div class="stat"><div class="stat-label">Total</div><div class="stat-val" id="stTotal">0</div></div>
+            <div class="stat"><div class="stat-label">Tested</div><div class="stat-val accent" id="stScanned">0</div></div>
+            <div class="stat"><div class="stat-label">Pass</div><div class="stat-val green" id="stPass">0</div></div>
+            <div class="stat"><div class="stat-label">Fail</div><div class="stat-val red" id="stFail">0</div></div>
+          </div>
+          <button class="btn btn-ghost full-w mt" onclick="exportResults()">↓ Export Results</button>
+          <button class="btn btn-ghost full-w mt-sm" onclick="clearSaved()">✕ Clear Saved Data</button>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><span>Event Log</span></div>
+          <div class="log-box" id="logBox"></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- LAB TAB -->
+  <div id="tab-lab" class="tab-content">
+    <div class="lab-layout">
+      <div class="main-col">
+        <div class="panel">
+          <div class="panel-head"><span>Embed Sandbox (FAM Preset)</span><span class="chip green">FAM Active</span></div>
+          <div class="panel-body">
+            <div class="url-row">
+              <input type="text" id="labUrl" placeholder="Paste embed URL here (movie only)" onclick="this.select()">
+              <button class="btn btn-accent" onclick="labLoad()">Load</button>
+              <button class="btn btn-ghost" onclick="labClear()">✕</button>
+            </div>
+            <div id="labSandbox" class="embed-box">
+              <div class="embed-placeholder">
+                <div class="ep-icon">📺</div>
+                <div>Enter an embed URL above and click Load</div>
+              </div>
+            </div>
+            <div id="labResultBtns" class="result-btns" style="display:none">
+              <button class="btn btn-pass" onclick="labMark('pass')">✔ Mark PASS</button>
+              <button class="btn btn-fail" onclick="labMark('fail')">✖ Mark FAIL</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="side-col">
+        <div class="panel">
+          <div class="panel-head"><span>Sandbox Config</span></div>
+          <div class="panel-body">
+            <div class="config-label">Sandbox Flags</div>
+            <div class="code-block">allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock allow-modals</div>
+            <div class="config-label mt">Allow</div>
+            <div class="code-block">autoplay; encrypted-media; picture-in-picture; web-share; fullscreen</div>
+            <div class="config-label mt">Referrer Policy</div>
+            <div class="code-block">no-referrer</div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><span>Active Test</span></div>
+          <div class="panel-body" id="activeTestInfo">
+            <div class="muted-text">No provider selected</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS TAB -->
+  <div id="tab-results" class="tab-content">
+    <div class="panel">
+      <div class="panel-head"><span>Verification Results</span><span class="chip" id="resultsChip">0 completed</span></div>
+      <div id="resultsTable" class="results-list">
+        <div class="empty-state">No results yet. Test providers in the Lab tab.</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="engine.js"></script>
+</body>
+</html>
