@@ -125,10 +125,26 @@ function setStatus(label, cls = '') {
 
 // ─── TABS ────────────────────────────────────────────────────────────────────
 function switchTab(name) {
+  // If leaving the 'lab' tab, clear the sandbox to stop playback
+  const currentTab = document.querySelector('.tab.active')?.getAttribute('data-tab');
+  if (currentTab === 'lab' && name !== 'lab') {
+    document.getElementById('labSandbox').innerHTML = `
+      <div class="embed-placeholder">
+        <div class="ep-icon">📺</div>
+        <div>Paused — Switch back to Lab to resume</div>
+      </div>`;
+    log('Sandbox cleared (tab switch)', 'info');
+  }
+
   document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
   document.getElementById('tab-' + name).classList.add('active');
   document.querySelector(`[data-tab="${name}"]`).classList.add('active');
+
+  // If entering the 'lab' tab and we have a selected provider, reload it
+  if (name === 'lab' && state.activeIdx !== null) {
+    labLoad();
+  }
 }
 
 // ─── LOAD SOURCES (fetch sources.json from repo) ─────────────────────────────
@@ -538,21 +554,41 @@ function mdToHtml(text) {
   // Bold
   html = html.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
 
-  // H3
+  // H3 - ensure they are on their own line
   html = html.replace(/^### (.*$)/gm, '<h3>$1</h3>');
 
-  // Lists
-  html = html.replace(/^\- (.*$)/gm, '<li>$1</li>');
-  html = html.replace(/(<li>.*<\/li>)/gms, '<ul>$1</ul>');
+  // Lists - group them properly
+  const lines = html.split('\n');
+  let inList = false;
+  let result = [];
 
-  // Newlines — handle multiple newlines and list boundaries
-  html = html.replace(/\n\n+/g, '\n');
+  for (let line of lines) {
+    if (line.trim().startsWith('- ')) {
+      if (!inList) {
+        result.push('<ul>');
+        inList = true;
+      }
+      result.push(`<li>${line.trim().substring(2)}</li>`);
+    } else {
+      if (inList) {
+        result.push('</ul>');
+        inList = false;
+      }
+      result.push(line);
+    }
+  }
+  if (inList) result.push('</ul>');
+  html = result.join('\n');
+
+  // Newlines — handle multiple newlines
+  html = html.replace(/\n\n+/g, '<br><br>');
   html = html.replace(/\n/g, '<br>');
 
-  // Fix list gaps
-  html = html.replace(/<\/ul><br><ul>/g, '');
-  html = html.replace(/<\/ul><br>/g, '</ul>');
+  // Cleanup: remove redundant breaks around structural elements
   html = html.replace(/<br><ul>/g, '<ul>');
+  html = html.replace(/<\/ul><br>/g, '</ul>');
+  html = html.replace(/<br><h3>/g, '<h3>');
+  html = html.replace(/<\/h3><br>/g, '</h3>');
 
   return html;
 }
