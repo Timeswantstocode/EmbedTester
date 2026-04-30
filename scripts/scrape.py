@@ -52,7 +52,7 @@ def ask_gemma(prompt: str, model_name: str) -> dict | None:
             "responseMimeType": "application/json",
             "thinkingConfig": {
                 "includeThoughts": True,
-                "thinkingBudget": 8192
+                "thinkingLevel": "HIGH"
             }
         }
     }
