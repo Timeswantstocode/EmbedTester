@@ -329,28 +329,67 @@ def get_rentry_hash(providers):
     data = json.dumps(providers, sort_keys=True).encode('utf-8')
     return hashlib.sha256(data).hexdigest()
 
-def upload_to_firebase(data):
-    """Upload the scraped data to Firebase Realtime Database."""
+def init_firebase():
+    """Initialize Firebase Admin SDK."""
     if not firebase_admin:
-        print("ERROR: firebase-admin not installed. Skipping upload.", flush=True)
-        return
+        print("ERROR: firebase-admin not installed.", flush=True)
+        return False
 
     service_account_info = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
     if not service_account_info:
-        print("WARNING: FIREBASE_SERVICE_ACCOUNT not set. Skipping upload.", flush=True)
-        return
+        print("WARNING: FIREBASE_SERVICE_ACCOUNT not set.", flush=True)
+        return False
 
     try:
-        # Load credentials from environment variable
-        cert = json.loads(service_account_info)
-        cred = credentials.Certificate(cert)
-
-        # Initialize the app if not already initialized
         if not firebase_admin._apps:
+            cert = json.loads(service_account_info)
+            cred = credentials.Certificate(cert)
             firebase_admin.initialize_app(cred, {
                 'databaseURL': 'https://famsourcedata-default-rtdb.firebaseio.com/'
             })
+        return True
+    except Exception as e:
+        print(f"ERROR: Failed to initialize Firebase: {e}", flush=True)
+        return False
 
+def verify_firebase_access():
+    """Pre-flight check to ensure Firebase Read/Write permissions are working."""
+    print("Performing Firebase pre-flight connection check...", flush=True)
+
+    if not init_firebase():
+        return False
+
+    try:
+        test_node = "/connection_test"
+        test_data = {
+            "status": "testing",
+            "timestamp": datetime.now(timezone.utc).isoformat()
+        }
+
+        # Attempt Write
+        ref = db.reference(test_node)
+        ref.set(test_data)
+
+        # Attempt Read
+        fetched = ref.get()
+        if fetched and fetched.get("status") == "testing":
+            print("✅ Firebase Read/Write access verified.", flush=True)
+            return True
+        else:
+            print("ERROR: Firebase read back failed or returned unexpected data.", flush=True)
+            return False
+
+    except Exception as e:
+        print(f"ERROR: Firebase connection check failed: {e}", flush=True)
+        return False
+
+def upload_to_firebase(data):
+    """Upload the scraped data to Firebase Realtime Database."""
+    if not init_firebase():
+        print("Skipping upload due to Firebase initialization failure.", flush=True)
+        return
+
+    try:
         # Overwrite the root of the database
         ref = db.reference('/')
         ref.set(data)
@@ -361,6 +400,12 @@ def upload_to_firebase(data):
 def main():
     print("=== Embed Sandbox — AI Batch Scraper ===", flush=True)
     load_env()
+
+    # Pre-flight check
+    if not verify_firebase_access():
+        print("FATAL: Firebase verification failed. Exiting.", flush=True)
+        sys.exit(1)
+
     load_webshare_proxies()
     
     force_run = os.environ.get("FORCE_RUN") == "true"
