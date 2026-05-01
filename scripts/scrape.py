@@ -200,8 +200,8 @@ https://vidapi.example.com
 https://vidapi.example.com/embed/movie/129
 
 ### URL Structure
-- **Movies**: `https://vidapi.example.com/embed/movie/{id}`
-- **TV Series**: `https://vidapi.example.com/embed/tv/{id}/{season}/{episode}`
+- **Movies**: `https://vidapi.example.com/embed/movie/{{id}}`
+- **TV Series**: `https://vidapi.example.com/embed/tv/{{id}}/{{season}}/{{episode}}`
 
 ### Supported IDs
 - TMDB ID (Primary)

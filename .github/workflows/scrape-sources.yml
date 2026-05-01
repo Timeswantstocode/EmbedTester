@@ -28,6 +28,7 @@ jobs:
       - name: Run scraper
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          WEBSHARE_API_KEY: ${{ secrets.WEBSHARE_API_KEY }}
           FORCE_RUN: ${{ github.event.inputs.force || 'false' }}
         run: python scripts/scrape.py
 
