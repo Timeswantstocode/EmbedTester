@@ -1,4 +1,4 @@
-# Generic Iframe & Embed Sandbox Tester
+# Iframe & Embed Sandbox Tester
 
 A GitHub Pages tool for developers to verify embed codes and monitor postMessage events in a secure sandbox environment.
 
