@@ -1,5 +1,6 @@
 .env
 sources.json
+scripts/*.json
 __pycache__/
 *.pyc
 et_state_v2

@@ -11,9 +11,6 @@ on:
   schedule:
     - cron: '0 6 */3 * *'   # Every 3 days at 06:00 UTC
 
-permissions:
-  contents: write
-
 jobs:
   scrape:
     runs-on: ubuntu-latest
@@ -35,11 +32,3 @@ jobs:
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           FORCE_RUN: ${{ github.event.inputs.force || 'false' }}
         run: python scripts/scrape.py
-
-      - name: Commit changes
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add scripts/last_rentry_state.json
-          git diff --cached --quiet || git commit -m "chore: update state [$(date -u '+%Y-%m-%d %H:%M UTC')]"
-          git push

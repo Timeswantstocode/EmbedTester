@@ -32,7 +32,6 @@ RENTRY_URL = "https://rentry.co/onbksdgu"
 TMDB_MOVIE_ID = "129"
 TMDB_TV_ID = "1399"
 OUTPUT_FILE = "sources.json"
-STATE_FILE = "scripts/last_rentry_state.json"
 JINA_DELAY = 1.0  # Reduced to 1.0s as requested, using rotating proxies
 BATCH_SIZE = 5  # Gemma 256K can easily handle 5+ full provider pages
 
@@ -423,13 +422,15 @@ def main():
     providers = parse_rentry(rentry_text)
     current_hash = get_rentry_hash(providers)
 
-    # Change Detection
-    if not force_run and os.path.exists(STATE_FILE):
-        with open(STATE_FILE, "r") as f:
-            state = json.load(f)
-            if state.get("hash") == current_hash:
-                print("No changes detected in Rentry providers. Exiting.", flush=True)
+    # Change Detection (via Firebase)
+    if not force_run:
+        try:
+            state = db.reference('/state').get()
+            if state and state.get("hash") == current_hash:
+                print("No changes detected in Rentry providers (via Firebase). Exiting.", flush=True)
                 sys.exit(0)
+        except Exception as e:
+            print(f"Warning: Failed to fetch state from Firebase: {e}. Proceeding with scrape.", flush=True)
 
     print(f"Found {len(providers)} providers. Processing in batches of {BATCH_SIZE}...", flush=True)
     time.sleep(JINA_DELAY)
@@ -565,8 +566,15 @@ def main():
     # Upload to Firebase
     upload_to_firebase(output)
 
-    with open(STATE_FILE, "w") as f:
-        json.dump({"hash": current_hash, "updated_at": datetime.now(timezone.utc).isoformat()}, f, indent=2)
+    # Update State in Firebase
+    try:
+        db.reference('/state').set({
+            "hash": current_hash,
+            "updated_at": datetime.now(timezone.utc).isoformat()
+        })
+        print("Successfully updated state in Firebase.", flush=True)
+    except Exception as e:
+        print(f"ERROR: Failed to update state in Firebase: {e}", flush=True)
 
     print(f"\nDone. Processed {len(final_results)} providers.", flush=True)
 
