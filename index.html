@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Embed Tester</title>
+<title>Embed Sandbox Tester</title>
 <link rel="stylesheet" href="style.css">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 </head>
@@ -27,8 +27,8 @@
     <div class="brand">
       <div class="logo">▶</div>
       <div>
-        <h1>Embed Tester</h1>
-        <p>GitHub Pages · Sandbox · TMDB Embed Tester</p>
+        <h1>Embed Sandbox</h1>
+        <p>GitHub Pages · Iframe Sandbox · PostMessage Monitor</p>
       </div>
     </div>
     <div class="header-actions">
@@ -42,7 +42,7 @@
 
   <!-- TABS -->
   <nav class="tabs">
-    <button class="tab active" data-tab="explorer" onclick="switchTab('explorer')">Source Explorer</button>
+    <button class="tab active" data-tab="explorer" onclick="switchTab('explorer')">Embed Explorer</button>
     <button class="tab" data-tab="lab" onclick="switchTab('lab')">Test Lab</button>
     <button class="tab" data-tab="history" onclick="switchTab('history')">History</button>
   </nav>
@@ -54,11 +54,11 @@
       <div class="main-col">
         <div class="panel">
           <div class="panel-head">
-            <span>Provider Registry</span>
+            <span>Embed Registry</span>
             <span id="providerCount" class="chip">0 found</span>
           </div>
           <div id="providerList" class="provider-list">
-            <div class="empty-state">Click <strong>Load Sources</strong> to discover all providers from lists</div>
+            <div class="empty-state">Click <strong>Load Sources</strong> to discover all entries from the registry</div>
           </div>
         </div>
       </div>
@@ -166,7 +166,7 @@
   <div id="docsModal" class="modal-overlay">
     <div class="modal-content">
       <div class="modal-header">
-        <h3 id="docsModalTitle">Provider Docs</h3>
+        <h3 id="docsModalTitle">Documentation</h3>
         <div style="display:flex; gap:8px;">
           <button class="btn-xs" onclick="copyDocsFromModal(this)" title="Copy Documentation">📋 Copy</button>
           <button class="btn-ghost btn-close" onclick="closeModal('docsModal')">✕</button>

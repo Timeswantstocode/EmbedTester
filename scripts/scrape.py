@@ -16,6 +16,12 @@ import hashlib
 from datetime import datetime, timezone
 from urllib.parse import urlparse
 
+try:
+    import firebase_admin
+    from firebase_admin import credentials, db
+except ImportError:
+    firebase_admin = None
+
 # Ensure stdout handles UTF-8 (crucial for Windows terminal)
 if sys.platform == "win32":
     import io
@@ -323,8 +329,37 @@ def get_rentry_hash(providers):
     data = json.dumps(providers, sort_keys=True).encode('utf-8')
     return hashlib.sha256(data).hexdigest()
 
+def upload_to_firebase(data):
+    """Upload the scraped data to Firebase Realtime Database."""
+    if not firebase_admin:
+        print("ERROR: firebase-admin not installed. Skipping upload.", flush=True)
+        return
+
+    service_account_info = os.environ.get("FIREBASE_SERVICE_ACCOUNT")
+    if not service_account_info:
+        print("WARNING: FIREBASE_SERVICE_ACCOUNT not set. Skipping upload.", flush=True)
+        return
+
+    try:
+        # Load credentials from environment variable
+        cert = json.loads(service_account_info)
+        cred = credentials.Certificate(cert)
+
+        # Initialize the app if not already initialized
+        if not firebase_admin._apps:
+            firebase_admin.initialize_app(cred, {
+                'databaseURL': 'https://famsourcedata-default-rtdb.firebaseio.com/'
+            })
+
+        # Overwrite the root of the database
+        ref = db.reference('/')
+        ref.set(data)
+        print("Successfully uploaded data to Firebase.", flush=True)
+    except Exception as e:
+        print(f"ERROR: Failed to upload to Firebase: {e}", flush=True)
+
 def main():
-    print("=== Embed Tester — AI Batch Scraper ===", flush=True)
+    print("=== Embed Sandbox — AI Batch Scraper ===", flush=True)
     load_env()
     load_webshare_proxies()
     
@@ -481,13 +516,14 @@ def main():
         "count": len(final_results),
         "providers": final_results,
     }
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(output, f, indent=2, ensure_ascii=False)
+
+    # Upload to Firebase
+    upload_to_firebase(output)
 
     with open(STATE_FILE, "w") as f:
         json.dump({"hash": current_hash, "updated_at": datetime.now(timezone.utc).isoformat()}, f, indent=2)
 
-    print(f"\nDone. Wrote {len(final_results)} providers to {OUTPUT_FILE}", flush=True)
+    print(f"\nDone. Processed {len(final_results)} providers.", flush=True)
 
 if __name__ == "__main__":
     main()
