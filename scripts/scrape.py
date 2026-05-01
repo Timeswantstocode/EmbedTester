@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-FAM Source Verifier - AI Batch Scraper
+Embed Tester - AI Batch Scraper
 Processes streaming providers in batches using Gemma models (256K context).
 """
 
@@ -114,7 +114,7 @@ def jina_get(url: str) -> str:
     return ""
 
 def ask_gemma(prompt: str, model_name: str) -> dict | str | None:
-    """Call Gemini API mirroring FAM's gemini.ts pattern exactly."""
+    """Call Gemini API for processing streaming providers."""
     api_key = os.environ.get("GEMINI_API_KEY")
     if not api_key:
         print("  [Error] GEMINI_API_KEY not set.", flush=True)
@@ -324,7 +324,7 @@ def get_rentry_hash(providers):
     return hashlib.sha256(data).hexdigest()
 
 def main():
-    print("=== FAM Source Verifier — AI Batch Scraper ===", flush=True)
+    print("=== Embed Tester — AI Batch Scraper ===", flush=True)
     load_env()
     load_webshare_proxies()
     

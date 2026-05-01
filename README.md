@@ -1,11 +1,10 @@
-# FAM Source Verifier
+# Embed Tester
 
-A GitHub Pages tool to discover and verify movie embed sources for the FAM project.
+A GitHub Pages tool to discover and verify movie embed sources.
 
 ## Features
-- Scrapes `rentry.co/onbksdgu` via Jina Reader for the latest provider list
+- Scrapes lists via Jina Reader for the latest provider list
 - Smart embed URL detection: 50+ known patterns + regex scoring
-- FAM sandbox preset testing (matches production iframe config)
 - LocalStorage persistence — session survives page refreshes
 - CSV export of test results
 
@@ -16,7 +15,7 @@ A GitHub Pages tool to discover and verify movie embed sources for the FAM proje
 4. Click **Test** on any provider
 5. Mark **PASS** or **FAIL** after observing playback
 
-## Sandbox Config (FAM Preset)
+## Sandbox Config
 ```
 sandbox="allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock allow-modals"
 allow="autoplay; encrypted-media; picture-in-picture; web-share; fullscreen"
