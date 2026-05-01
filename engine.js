@@ -1,9 +1,9 @@
-/* engine.js — FAM Source Verifier (GitHub Pages edition) */
+/* engine.js — Embed Tester (GitHub Pages edition) */
 
 const SOURCES_URL = './sources.json';
-const STORE_KEY   = 'famsv_state_v2';
-const FAM_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock allow-modals';
-const FAM_ALLOW   = 'autoplay; encrypted-media; picture-in-picture; web-share; fullscreen';
+const STORE_KEY   = 'et_state_v2';
+const EMBED_SANDBOX = 'allow-scripts allow-same-origin allow-forms allow-presentation allow-orientation-lock allow-pointer-lock allow-modals';
+const EMBED_ALLOW   = 'autoplay; encrypted-media; picture-in-picture; web-share; fullscreen';
 
 // ─── STATE ───────────────────────────────────────────────────────────────────
 let state = {
@@ -41,7 +41,7 @@ function downloadState() {
   const blob = new Blob([data], { type: 'application/json' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = `fam-backup-${Date.now()}.json`;
+  a.download = `et-backup-${Date.now()}.json`;
   a.click();
   log('Backup downloaded', 'success');
 }
@@ -422,8 +422,8 @@ function labLoad() {
   
   box.innerHTML = `<iframe
     src="${esc(url)}"
-    ${useSandbox ? `sandbox="${FAM_SANDBOX}"` : ''}
-    allow="${FAM_ALLOW}"
+    ${useSandbox ? `sandbox="${EMBED_SANDBOX}"` : ''}
+    allow="${EMBED_ALLOW}"
     referrerpolicy="no-referrer"
   ></iframe>`;
 
@@ -537,7 +537,7 @@ function exportResults() {
   const csv = rows.map(r => r.map(c => `"${String(c||'').replace(/"/g,'""')}"`).join(',')).join('\n');
   const a = document.createElement('a');
   a.href     = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-  a.download = 'fam-results-' + Date.now() + '.csv';
+  a.download = 'et-results-' + Date.now() + '.csv';
   a.click();
   log('Exported CSV', 'success');
 }
