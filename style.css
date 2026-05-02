@@ -39,7 +39,7 @@ body {
   justify-content: center;
 }
 #overlay.active { display: flex; animation: fadeIn 0.2s ease; }
-.overlay-box { width: 380px; text-align: center; padding: 30px; }
+.overlay-box { width: 90%; max-width: 380px; text-align: center; padding: 30px; }
 .overlay-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; }
 .overlay-sub { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
 .prog-bar { height: 3px; background: var(--border); border-radius: 99px; overflow: hidden; margin: 10px 0; }
@@ -74,8 +74,8 @@ header {
   display: flex; align-items: center; justify-content: center;
   box-shadow: 0 0 24px rgba(0,255,204,0.4);
 }
-header h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; white-space: nowrap; }
-header p { font-size: 11px; color: var(--muted); letter-spacing: 1px; white-space: nowrap; }
+header h1 { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
+header p { font-size: 11px; color: var(--muted); letter-spacing: 1px; }
 .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
 /* Status Pill */
@@ -335,8 +335,21 @@ header p { font-size: 11px; color: var(--muted); letter-spacing: 1px; white-spac
 
 @media (max-width: 600px) {
   .app { padding: 12px 10px; }
+  header { flex-direction: column; align-items: center; text-align: center; }
+  .brand { flex-direction: column; gap: 8px; }
+  .header-actions { justify-content: center; width: 100%; }
   header h1 { font-size: 16px; }
-  .tab { padding: 8px 14px; font-size: 12px; }
+  .tabs { width: 100%; max-width: none; }
+  .tab { flex: 1; text-align: center; padding: 8px 14px; font-size: 12px; }
+  .provider-item { flex-direction: column; align-items: stretch; gap: 12px; }
+  .pi-actions { width: 100%; justify-content: flex-start; }
   .result-btns { flex-direction: column; }
   .url-row { flex-direction: column; }
+  .result-row { flex-direction: column; align-items: stretch; gap: 14px; padding: 15px; }
+  .rr-provider-group { flex-direction: column; align-items: stretch; gap: 10px; }
+  .rr-provider-btn { width: 100%; text-align: center; }
+}
+
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr; }
 }
