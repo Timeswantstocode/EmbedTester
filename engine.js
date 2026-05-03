@@ -126,8 +126,13 @@ function setStatus(label, cls = '') {
 
 // ─── TABS ────────────────────────────────────────────────────────────────────
 function switchTab(name) {
-  // If leaving the 'lab' tab, clear the sandbox to stop playback
   const currentTab = document.querySelector('.tab.active')?.getAttribute('data-tab');
+  if (currentTab === name) {
+    if (name === 'lab' && state.activeIdx !== null) labLoad();
+    return;
+  }
+
+  // If leaving the 'lab' tab, clear the sandbox to stop playback
   if (currentTab === 'lab' && name !== 'lab') {
     document.getElementById('labSandbox').innerHTML = `
       <div class="embed-placeholder">
@@ -379,7 +384,6 @@ function renderResults() {
 function openInLab(idx) {
   state.activeIdx = idx;
   const p = state.providers[idx];
-  switchTab('lab');
 
   document.getElementById('labUrl').value = p.embed || '';
   document.getElementById('activeTestInfo').innerHTML = `
@@ -397,7 +401,7 @@ function openInLab(idx) {
     <div style="margin-top:8px;font-size:10px;color:var(--muted)">Source: ${p.source || 'unknown'}</div>
   `;
 
-  labLoad();
+  switchTab('lab');
   document.getElementById('labResultBtns').style.display = 'flex';
   document.getElementById('labNotesContainer').style.display = 'block';
 }
